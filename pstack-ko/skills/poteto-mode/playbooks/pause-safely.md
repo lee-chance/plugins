@@ -1,10 +1,10 @@
-### Pause safely
+### 안전하게 일시정지
 
-**You own a clean stop. Leave a checkpoint a cold-start agent can resume from.** This is explicit only. On "keep going", "going to bed, keep going", or "don't stop", do not pause.
+**깨끗한 중단을 당신이 소유합니다. 콜드 스타트 에이전트가 재개할 수 있는 체크포인트를 남기세요.** 이것은 명시적인 경우에만입니다. "계속", "자러 가니, 계속해", 또는 "멈추지 마"에서는 일시정지하지 마세요.
 
-1. Stop at a safe boundary. Finish the current atomic step or back out of it. Start nothing new, and cancel any nested subagents.
-2. Take no irreversible action to pause. No PR and no push unless you already had one out.
-3. Make the work durable. Commit uncommitted edits as one clear `wip:` commit on the current branch so nothing is lost. If the tree is broken, say so in the commit body in one line.
-4. Write the resume note off-context. Capture intent, what you were doing, progress and what's verified, current state, next steps, key files, and gotchas. For the compaction trigger write it to a file like `/tmp/<slug>-resume.md`. If a show-me-your-work trail exists, point at it instead of duplicating it.
+1. 안전한 경계에서 중단. 현재 원자적 단계를 완료하거나 그것에서 빠져나오세요. 새로운 것을 시작하지 말고, 중첩된 하위 에이전트를 취소하세요.
+2. 일시정지를 위해 되돌릴 수 없는 행동을 취하지 마세요. 이미 하나가 나가지 않았으면 PR도 푸시도 없음.
+3. 작업을 내구성 있게 만드세요. 커밋되지 않은 편집을 현재 브랜치에 하나의 명확한 `wip:` 커밋으로 커밋하여 아무것도 잃지 않도록 하세요. 트리가 깨졌으면, 커밋 본문에 한 줄로 그렇게 말하세요.
+4. 재개 노트를 컨텍스트 외부에 작성. 의도, 무엇을 하고 있었는지, 진행과 검증된 것, 현재 상태, 다음 단계, 주요 파일, 함정을 캡처. 압축 트리거의 경우 `/tmp/<slug>-resume.md` 같은 파일에 작성. show-me-your-work 추적이 존재하면, 복제하는 대신 그것을 가리키세요.
 
-**Reply:** where you are in the loop, what's on disk versus still in your head (paths, no diff dumps), the commits you made and whether the tree is clean, and the first action on resume. This is a pause, not a final report.
+**답변:** 루프의 어디에 있는지, 디스크에 있는 것 대 여전히 머리에 있는 것(경로, 차이 덤프 없음), 만든 커밋과 트리가 깨끗한지 여부, 재개 시 첫 번째 행동. 이것은 최종 보고서가 아니라 일시정지입니다.

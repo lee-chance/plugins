@@ -1,36 +1,36 @@
 ---
 name: how
-description: "Use for \"how does X work\", code walkthroughs before changing something, and placement / ownership / layering questions (\"where should this live\", \"which package owns this\", \"is this the right layer\"). Explains subsystem architecture, runtime flow, onboarding mental models. Use why for motivation."
+description: "\"how does X work\", 무언가를 변경하기 전의 코드 워크스루, 배치 / 소유권 / 계층 질문 (\"이것이 어디에 살아야 하는가\", \"어떤 패키지가 이것을 소유하는가\", \"이것이 올바른 레이어인가\")에 사용하세요. 하위 시스템 아키텍처, 런타임 흐름, 온보딩 정신 모델을 설명합니다. 동기에는 why를 사용하세요."
 disable-model-invocation: true
 ---
 
 # How
 
-Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
+"how does X work?" 질문에 답하기 위해 코드베이스를 탐색하세요. 주석이 달린 소스 코드처럼 읽히지 않을 만큼 충분하지만, 작동하는 정신 모델을 구축하기에 충분한, 하위 시스템에 온보딩하는 시니어 엔지니어 수준의 아키텍처 설명을 생성하세요.
 
-Every spawn is a Task subagent with `subagent_type: generalPurpose` and `readonly: true`. Explorers use the `how explorer` line in the `pstack-models.mdc` rule (default `grok-4.7-xhigh-fast`), and every explainer uses the `how explainer` line (default `claude-opus-5-5-xhigh`). Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the **poteto-mode** skill.
+모든 생성은 `subagent_type: generalPurpose` 및 `readonly: true`인 Task 서브에이전트입니다. Explorer는 `pstack-models.mdc` 규칙의 `how explorer` 라인을 사용하고 (기본값 `grok-4.7-xhigh-fast`), 모든 explainer는 `how explainer` 라인을 사용합니다 (기본값 `claude-opus-5-5-xhigh`). `model`을 해당 라인의 값으로 설정하거나, 규칙이나 라인이 없으면 기본값으로 설정하세요. 값이 `auto` 또는 `inherit-parent`일 때 `model`을 설정하지 않은 채로 두세요. Task 도구가 슬러그를 거부하면 기본값을 사용하고 그렇게 말하세요. 기본값을 거부하면 오류 메시지에서 동일한 패밀리의 가장 가까운 유효한 슬러그를 사용하세요. **poteto-mode** 스킬의 Subagents 섹션에 따라 작업에 대한 각 서브에이전트의 추론 수준과 빠른 또는 표준 속도를 선택하세요.
 
-## 1. Assess complexity
+## 1. 복잡성 평가
 
-If the scope is ambiguous, state your interpretation and explore. The user can redirect.
+범위가 모호하면 해석을 진술하고 탐색하세요. 사용자가 리디렉션할 수 있습니다.
 
-- **Simple** (a single module, a small utility, a narrow question such as "how does function X work"): no explorers. Spawn one explainer that explores and explains in one pass, built from `references/explainer-prompt.md` without the explorer-findings section. Go to step 4.
-- **Complex** (a subsystem spanning multiple files or services, a cross-cutting feature, a full architectural overview): go to step 2.
+- **Simple (단순)** (단일 모듈, 작은 유틸리티, "function X는 어떻게 작동하는가"와 같은 좁은 질문): explorer가 없습니다. explorer-findings 섹션 없이 `references/explainer-prompt.md`에서 빌드된 한 번의 패스로 탐색하고 설명하는 하나의 explainer를 생성하세요. 4단계로 이동하세요.
+- **Complex (복잡)** (여러 파일 또는 서비스에 걸친 하위 시스템, 교차 기능, 전체 아키텍처 개요): 2단계로 이동하세요.
 
-When in doubt, take the simple path.
+의심스러우면 단순한 경로를 택하세요.
 
-## 2. Explore (complex only)
+## 2. 탐색 (복잡만)
 
-Decompose the question into 2 to 4 angles, each a distinct slice of the subsystem. Spawn all explorers in a single message, each with `references/explorer-prompt.md` and its angle filled in.
+질문을 2에서 4개의 각도로 분해하세요. 각각은 하위 시스템의 별개의 슬라이스입니다. 각각에 `references/explorer-prompt.md`와 그 각도가 채워진 단일 메시지에서 모든 explorer를 생성하세요.
 
-## 3. Synthesize (complex only)
+## 3. 합성 (복잡만)
 
-Once all explorers have returned, spawn one explainer with `references/explainer-prompt.md` and every explorer's findings filled in.
+모든 explorer가 반환되면 `references/explainer-prompt.md`와 모든 explorer의 발견 사항이 채워진 하나의 explainer를 생성하세요.
 
-## 4. Present
+## 4. 제시
 
-Present the explainer's output. Light edits for clarity or context from the conversation are fine. Do not substantially rewrite it.
+explainer의 출력을 제시하세요. 대화에서 명확성이나 컨텍스트를 위한 가벼운 편집은 괜찮습니다. 실질적으로 다시 작성하지 마세요.
 
-## Output format
+## 출력 형식
 
-The explanation uses the sections defined in `references/explainer-prompt.md`, dropping any that do not apply: Overview, Key Concepts, How It Works, Where Things Live, Gotchas.
+설명은 `references/explainer-prompt.md`에 정의된 섹션을 사용하며, 적용되지 않는 것은 삭제합니다: Overview, Key Concepts, How It Works, Where Things Live, Gotchas.

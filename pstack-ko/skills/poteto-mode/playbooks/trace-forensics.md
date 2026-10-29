@@ -1,14 +1,14 @@
-### Trace forensics
+### 추적 포렌식
 
-**You own the diagnosis from the artifact.**
+**아티팩트로부터 진단을 당신이 소유합니다.**
 
-Distinct from **Runtime forensics**, which instruments the live process. Here the capture already exists. The artifact is a fixed dataset, read it, don't re-run it. Keep tooling generic: a DevTools or trace parser for cpuprofile and `.json.gz`, a text editor for a spindump, your heap tooling for a heapsnapshot.
+라이브 프로세스를 계측하는 **Runtime forensics**와 구별됩니다. 여기서 캡처는 이미 존재합니다. 아티팩트는 고정 데이터셋입니다. 그것을 읽되, 재실행하지 마세요. 도구를 일반적으로 유지: cpuprofile과 `.json.gz`를 위한 DevTools 또는 추적 파서, spindump를 위한 텍스트 에디터, heapsnapshot을 위한 힙 도구.
 
-1. Identify the format and load it with the right tool. Parse large artifacts in a subagent (the **principle-guard-the-context-window** skill) and keep the reduced finding in the main thread. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
-2. Transform the raw artifact into a form you can query. Dump the trace or heap snapshot into sqlite, one row per sample, frame, or node. Reach the queryable shape before you read.
-3. Narrow to the cause. Query for the frames that hold the most time and walk the call tree to the hot path. For a leak, follow the retainer chain from the leaked object to a GC root. For a spindump, find the thread stuck on-CPU or blocked and its wait reason.
-4. Attribute to source. Map the hot frame to file, symbol, and line via the artifact's own symbols. A frame with no source mapping is not yet a diagnosis. Resolve the symbols, or say plainly the artifact does not carry them.
-5. If you have a paired capture, diff the before and after artifacts to confirm. Otherwise, mark the finding as the strongest hypothesis the artifact supports, not a confirmed cause.
-6. Hand back a cited diagnosis, no fix unless asked. Route to Bug fix or Perf issue once the cause is known. Throughput checkpoint stays one line: `throughput checkpoint: n/a, read-only forensics`.
+1. 형식을 식별하고 올바른 도구로 로드. 하위 에이전트에서 큰 아티팩트를 파싱하고(**principle-guard-the-context-window** 스킬) 메인 스레드에 축소된 발견을 유지. 하위 에이전트 섹션에 따라 각 하위 에이전트의 추론 수준과 빠름 또는 표준 속도를 작업에 맞게 선택하세요.
+2. 원시 아티팩트를 쿼리할 수 있는 형태로 변환. 추적이나 힙 스냅샷을 sqlite로 덤프, 샘플, 프레임, 또는 노드당 하나의 행. 읽기 전에 쿼리 가능한 형태에 도달.
+3. 원인으로 좁히기. 가장 많은 시간을 보유하는 프레임을 쿼리하고 호출 트리를 핫 경로로 걸어갑니다. 누수의 경우, 누출된 객체에서 GC 루트로 리테이너 체인을 따르세요. spindump의 경우, 온-CPU에 막혔거나 차단된 스레드와 대기 이유를 찾으세요.
+4. 소스에 귀속. 아티팩트 자체 심볼을 통해 핫 프레임을 파일, 심볼, 라인에 매핑. 소스 매핑이 없는 프레임은 아직 진단이 아닙니다. 심볼을 해결하거나, 아티팩트가 그것들을 담지 않는다고 평문으로 말하세요.
+5. 쌍으로 된 캡처가 있으면, 확인하기 위해 이전과 이후 아티팩트를 차이냄. 그렇지 않으면, 발견을 아티팩트가 지원하는 가장 강력한 가설로 표시하되, 확인된 원인이 아님.
+6. 인용된 진단을 돌려주되, 요청되지 않는 한 수정 없음. 원인이 알려지면 Bug fix 또는 Perf issue로 라우팅. 처리량 체크포인트는 한 줄로 유지: `throughput checkpoint: n/a, read-only forensics`.
 
-**Reply:** the artifact and format, the reduced finding, the source location, the artifact paths, and whether a paired capture confirmed it.
+**답변:** 아티팩트와 형식, 축소된 발견, 소스 위치, 아티팩트 경로, 쌍으로 된 캡처가 그것을 확인했는지 여부.

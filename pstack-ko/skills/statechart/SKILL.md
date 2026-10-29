@@ -1,82 +1,82 @@
 ---
 name: statechart
-description: "Check a TLA+ model of a system that moves between states, such as a product flow, a protocol, or a service, and draw it as a Mermaid statechart. The report gives the shortest path to each state that breaks a rule. Use for /statechart, or to show a bug as a path through states."
+description: "제품 플로우, 프로토콜 또는 서비스와 같이 상태 간을 이동하는 시스템의 TLA+ 모델을 확인하고 Mermaid statechart로 그립니다. 보고서는 규칙을 위반하는 각 상태로 가는 최단 경로를 제공합니다. /statechart, 또는 버그를 상태를 통한 경로로 보여주기 위해 사용하세요."
 disable-model-invocation: true
 ---
 
 # Statechart
 
-The chart shows how a system moves between states, in the words of the person who reads it. That person, the reader, decides whether the behavior is right.
+차트는 시스템이 상태 간을 이동하는 방법을 읽는 사람의 단어로 보여줍니다. 그 사람, 독자가 동작이 올바른지 결정합니다.
 
-## Run
+## 실행
 
-Work in a scratch folder outside the repo. Write a TLA+ spec and its config. Then run:
+저장소 외부의 스크래치 폴더에서 작업하세요. TLA+ 스펙과 구성을 작성하세요. 그런 다음 실행하세요:
 
 ```sh
 <skill dir>/scripts/statechart SPEC.tla [--config FILE] [--view FILE] [--out DIR]
 ```
 
-`scripts/statechart.ts` is TypeScript, so run it with a runtime that can execute TypeScript.
+`scripts/statechart.ts`는 TypeScript이므로 TypeScript를 실행할 수 있는 런타임으로 실행하세요.
 
-The first run installs TLC and Java with mise and needs the network.
+첫 실행은 mise로 TLC와 Java를 설치하며 네트워크가 필요합니다.
 
-## Write the spec
+## 스펙 작성
 
-- Write each rule that the reader agrees to as an INVARIANT. A rule can be about a screen, a result, a stored value, or a message. If the model has no variable for a rule, add the variable. Never weaken a rule to make it hold.
-- Write `Next` as a disjunction of the actions, such as `YouPressPlay \/ YouPressStop`. If you do not, TLC names every step `Next`.
-- A state with no step out breaks `NoDeadlock`, also when it is a correct end state. When an INVARIANT or a PROPERTY already has that name, the rule is `CHECK_DEADLOCK`. Add to `Next` an action that is true only in the end states and changes nothing, such as `Done == phase \in {"paid", "failed"} /\ UNCHANGED vars`, and give it a label in `step()`.
+- 독자가 동의하는 각 규칙을 INVARIANT로 작성하세요. 규칙은 화면, 결과, 저장된 값 또는 메시지에 관한 것일 수 있습니다. 모델에 규칙에 대한 변수가 없으면 변수를 추가하세요. 유지하도록 만들기 위해 규칙을 절대 약화시키지 마세요.
+- `Next`를 `YouPressPlay \/ YouPressStop`과 같이 액션의 분리로 작성하세요. 그렇지 않으면 TLC는 모든 단계를 `Next`로 명명합니다.
+- 단계 아웃이 없는 상태는 올바른 종료 상태일 때도 `NoDeadlock`을 위반합니다. INVARIANT 또는 PROPERTY가 이미 그 이름을 가지고 있을 때 규칙은 `CHECK_DEADLOCK`입니다. `Next`에 종료 상태에서만 참이고 아무것도 변경하지 않는 액션을 추가하세요. `Done == phase \in {"paid", "failed"} /\ UNCHANGED vars`와 같이, 그리고 `step()`에 레이블을 제공하세요.
 
-## Pick the chart
+## 차트 선택
 
-You do the work that needs judgment: the words on each state and arrow, the phases and their colors, the title, and the report to the reader. Put your work in a view module, and give it with `--view`.
+판단이 필요한 작업을 수행하세요: 각 상태와 화살표의 단어, 단계와 색상, 제목, 독자에 대한 보고서. 뷰 모듈에 작업을 넣고 `--view`로 제공하세요.
 
-To show the reader's words, the view exports `state(vars)`. The value that `state()` returns picks the form:
+독자의 단어를 보여주기 위해 뷰는 `state(vars)`를 내보냅니다. `state()`가 반환하는 값은 형태를 선택합니다:
 
-- A string gives a flat chart: `export const state = (v) => (v.paid ? "Paid" : "Paying");`
-- An array gives parent states: `export const state = (v) => v.main.split(".");`
-- An object gives one parallel region for each key: `export const state = (v) => ({ Playback: v.playback, Volume: v.volume });`
+- 문자열은 평평한 차트를 제공합니다: `export const state = (v) => (v.paid ? "Paid" : "Paying");`
+- 배열은 부모 상태를 제공합니다: `export const state = (v) => v.main.split(".");`
+- 객체는 각 키에 대해 하나의 병렬 영역을 제공합니다: `export const state = (v) => ({ Playback: v.playback, Volume: v.volume });`
 
-Label each state with what the reader can see or cares about, such as "Paying" or "Lease held, write pending". Keep variable names out of labels. In `vars`, a TLA+ sequence is an object with keys from 1, so `v.pc[1]` is `pc[1]`. A set is an array.
+독자가 볼 수 있거나 신경 쓰는 것으로 각 상태에 레이블을 붙이세요. "Paying" 또는 "Lease held, write pending"과 같이. 레이블에서 변수 이름을 빼세요. `vars`에서 TLA+ 시퀀스는 1부터 키가 있는 객체이므로 `v.pc[1]`은 `pc[1]`입니다. 세트는 배열입니다.
 
-The view can also export `step(action, from, to)`. It gets the TLC action name and the values before and after the step, and it returns the label of the arrow. Write each step label as the user sees it happen, such as "you press play" or "the connect fails". Do not name the code or the TLA+ action. Two actions that end the same in the chart get the same label, so that they share one arrow.
+뷰는 `step(action, from, to)`도 내보낼 수 있습니다. TLC 액션 이름과 단계 전후의 값을 받고, 화살표의 레이블을 반환합니다. 사용자가 보는 방식으로 각 단계 레이블을 작성하세요. "you press play" 또는 "the connect fails"와 같이. 코드나 TLA+ 액션을 명명하지 마세요. 차트에서 동일하게 끝나는 두 액션은 동일한 레이블을 받아 하나의 화살표를 공유합니다.
 
-When a step can occur only in some conditions, end its label with the condition in brackets, in the reader's words, such as `you press play [while the file loads]`. In a regions chart, the command writes the condition on the other regions on the arrow, in the words of their labels, such as `[when Offline]`. Your brackets replace it, and two arrows from one state can then look the same. So in a regions chart, do not write brackets for a condition on another region. When a value that no label shows decides where a step goes, name the result in the label, such as "the roster read fails".
+단계가 일부 조건에서만 발생할 수 있을 때 독자의 단어로 레이블 끝에 대괄호로 조건을 추가하세요. `you press play [while the file loads]`와 같이. 영역 차트에서 명령은 화살표의 다른 영역에 조건을 작성하고, 레이블의 단어로 `[when Offline]`과 같이. 대괄호가 그것을 대체하고, 한 상태에서 두 화살표가 동일하게 보일 수 있습니다. 따라서 영역 차트에서 다른 영역의 조건에 대해 대괄호를 작성하지 마세요. 레이블이 보여주지 않는 값이 단계가 가는 곳을 결정할 때 레이블에 결과를 명명하세요. "the roster read fails"와 같이.
 
-The view can also export these:
+뷰는 다음도 내보낼 수 있습니다:
 
-- `group(vars)` returns the name of a phase. Each chart state gets the color of its group. When the model states behind one chart state are in different groups, that state gets no color.
-- `colors` gives each group name a color class.
-- `title` is a string that the chart shows at the top.
+- `group(vars)`는 단계의 이름을 반환합니다. 각 차트 상태는 그룹의 색상을 받습니다. 하나의 차트 상태 뒤의 모델 상태가 다른 그룹에 있을 때 그 상태는 색상을 받지 않습니다.
+- `colors`는 각 그룹 이름에 색상 클래스를 제공합니다.
+- `title`은 차트가 상단에 보여주는 문자열입니다.
 
-The command calls `state()` and `group()` at most once for each model state, and `step()` at most once for each step. The chart and the report both use those answers. So make each function depend only on its arguments.
+명령은 각 모델 상태에 대해 최대 한 번 `state()`와 `group()`를 호출하고, 각 단계에 대해 최대 한 번 `step()`를 호출합니다. 차트와 보고서 모두 해당 답을 사용합니다. 따라서 각 함수를 인수에만 의존하게 만드세요.
 
-The chart does not draw a step that stays in one label. Split a label when the reader must see such a step.
+차트는 하나의 레이블에 머무는 단계를 그리지 않습니다. 독자가 그러한 단계를 봐야 할 때 레이블을 분할하세요.
 
-Aim for about 20 arrows or fewer, because a busier chart is hard to read. First return coarser labels from `state()`. Give one label to values that act the same, and leave out a detail that the reader does not need, such as a call in flight whose return changes nothing. Keep each state of a bug path, and keep each mark. When a merge changes a `breaks` state to `mayBreak`, it hides where a rule breaks. Do not merge two states that break different rules, because the reader then cannot see which rule breaks where. If the chart is still too busy, return `null` from `step()` for the steps that the reader does not need, such as a reset that every state has, or a step whose arrow repeats what other arrows show. Obey these rules when you hide steps:
+더 바쁜 차트는 읽기 어렵기 때문에 약 20개 이하의 화살표를 목표로 하세요. 먼저 `state()`에서 더 거친 레이블을 반환하세요. 동일하게 행동하는 값에 하나의 레이블을 제공하고, 독자가 필요하지 않은 세부 사항을 빼세요. 반환이 아무것도 변경하지 않는 진행 중인 호출과 같은. 버그 경로의 각 상태를 유지하고, 각 마크를 유지하세요. 병합이 `breaks` 상태를 `mayBreak`로 변경하면 규칙이 어디서 위반되는지 숨깁니다. 다른 규칙을 위반하는 두 상태를 병합하지 마세요. 독자가 어떤 규칙이 어디서 위반되는지 볼 수 없기 때문입니다. 차트가 여전히 너무 바쁘면 독자가 필요하지 않은 단계에 대해 `step()`에서 `null`을 반환하세요. 모든 상태가 가지고 있는 재설정 또는 다른 화살표가 보여주는 것을 반복하는 단계의 화살표와 같은. 단계를 숨길 때 이 규칙을 따르세요:
 
-- Keep each chart state reachable by arrows from a start state.
-- Keep at least one arrow out of each chart state that has a step out in the model.
-- Hide all the steps of an arrow, or none of them. When you hide only some, its condition gets narrower.
-- In the hand-off, say which steps the chart hides.
+- 시작 상태에서 화살표로 각 차트 상태를 도달 가능하게 유지하세요.
+- 모델에서 단계 아웃을 가진 각 차트 상태에서 최소 하나의 화살표를 유지하세요.
+- 화살표의 모든 단계를 숨기거나 아무것도 숨기지 마세요. 일부만 숨기면 조건이 더 좁아집니다.
+- 넘김에서 차트가 어떤 단계를 숨기는지 말하세요.
 
-## Read the report
+## 보고서 읽기
 
-- In the chart, a state that breaks a rule has the class `breaks`. When only some model states behind it break the rule, it has the class `mayBreak`. The Legend names the rules of each mark. When two rules break, it names both on one mark, so say in the hand-off which state breaks which rule. In a regions chart, a state gets a mark when each combination of region states that includes it can break a rule. When a combination can break a rule and none of its states has a mark, each state in that combination gets a mark.
-- TLC goes past a state that breaks a rule, so the chart shows the states after a bug.
-- Because TLC goes past bugs, a model with no limit on its states can run without end. Keep the constants small, or add a CONSTRAINT.
-- With a VIEW or a SYMMETRY, TLC counts states that it treats as the same as one state, and the chart draws that one state. An arrow can lead to it rather than to the state that the step reaches, and the report says so.
-- TLC checks the rules in each state past a CONSTRAINT or an ACTION_CONSTRAINT, but it does not explore that state or check it for deadlock. When TLC's shortest path for a rule ends in such a state, the chart draws that state, and the report gives that path. The chart does not draw the other states past the bound. A deadlock in such a state does not show. TLC also checks the rules after each step that an ACTION_CONSTRAINT excludes, also when it reaches the next state another way. When TLC's shortest path for a rule ends with such a step, the chart draws that step.
-- The command checks the rules with TLC on the config as written, with one worker. When a rule breaks, the command removes that rule and runs TLC again, until no rule breaks. After the first break, each run stops at 100,000 distinct states, so that a large model does not run without end. When a run reaches that bound or stops on an error, the report lists the rules that it did not check under "Rules not checked", and the chart does not mark them. A rule that is not checked can hold or break. To check it, remove the rules that break from the config, or make the model smaller. The bound adds a module that changes TLC's order of the variables, so for a property TLC can find a different counterexample than a run without the bound.
-- `tlc.out` is what TLC printed on the config as written. When the chart does not show the bug path of a rule that breaks, `tlc-RULE.out` is what TLC printed for the run that found it. When TLC repeats its first warning, plain TLC prints it twice, but `tlc.out` shows it once, because TLC leaves the second copy out of the output that this command reads. That happens only when Java runs with `-XX:+UseParallelGC`, since otherwise TLC's first warning is its advice to pass that flag, which it prints once.
+- 차트에서 규칙을 위반하는 상태는 클래스 `breaks`를 갖습니다. 그것 뒤의 일부 모델 상태만 규칙을 위반할 때 클래스 `mayBreak`를 갖습니다. Legend는 각 마크의 규칙을 명명합니다. 두 규칙이 위반되면 하나의 마크에 둘 다 명명하므로 넘김에서 어떤 상태가 어떤 규칙을 위반하는지 말하세요. 영역 차트에서 상태는 그것을 포함하는 영역 상태의 각 조합이 규칙을 위반할 수 있을 때 마크를 받습니다. 조합이 규칙을 위반할 수 있고 상태 중 어느 것도 마크가 없을 때 그 조합의 각 상태는 마크를 받습니다.
+- TLC는 규칙을 위반하는 상태를 지나가므로 차트는 버그 후의 상태를 보여줍니다.
+- TLC가 버그를 지나가기 때문에 상태에 제한이 없는 모델은 끝없이 실행될 수 있습니다. 상수를 작게 유지하거나 CONSTRAINT를 추가하세요.
+- VIEW 또는 SYMMETRY로 TLC는 동일하게 취급하는 상태를 하나의 상태로 카운트하고, 차트는 그 하나의 상태를 그립니다. 화살표는 단계가 도달하는 상태가 아니라 그것으로 이어질 수 있으며, 보고서는 그렇게 말합니다.
+- TLC는 CONSTRAINT 또는 ACTION_CONSTRAINT를 지나 각 상태에서 규칙을 확인하지만, 그 상태를 탐색하거나 교착 상태를 확인하지 않습니다. TLC의 규칙에 대한 최단 경로가 그러한 상태에서 끝날 때 차트는 그 상태를 그리고, 보고서는 그 경로를 제공합니다. 차트는 경계를 지나 다른 상태를 그리지 않습니다. 그러한 상태의 교착 상태는 보여지지 않습니다. TLC는 또한 ACTION_CONSTRAINT가 제외하는 각 단계 후에 규칙을 확인하며, 다른 방식으로 다음 상태에 도달할 때도 마찬가지입니다. TLC의 규칙에 대한 최단 경로가 그러한 단계로 끝날 때 차트는 그 단계를 그립니다.
+- 명령은 작성된 대로 구성에서 하나의 워커로 TLC로 규칙을 확인합니다. 규칙이 위반되면 명령은 그 규칙을 제거하고 TLC를 다시 실행합니다. 규칙이 위반되지 않을 때까지. 첫 번째 중단 후 각 실행은 100,000개의 고유 상태에서 멈추므로 큰 모델이 끝없이 실행되지 않습니다. 실행이 그 경계에 도달하거나 오류로 멈추면 보고서는 "Rules not checked"에서 확인하지 않은 규칙을 나열하고, 차트는 그것들을 표시하지 않습니다. 확인되지 않은 규칙은 유지되거나 위반될 수 있습니다. 확인하려면 위반되는 규칙을 구성에서 제거하거나 모델을 더 작게 만드세요. 경계는 TLC의 변수 순서를 변경하는 모듈을 추가하므로 속성의 경우 TLC는 경계 없는 실행과 다른 반례를 찾을 수 있습니다.
+- `tlc.out`은 작성된 대로 구성에서 TLC가 출력한 것입니다. 차트가 위반되는 규칙의 버그 경로를 보여주지 않을 때 `tlc-RULE.out`은 그것을 찾은 실행에 대해 TLC가 출력한 것입니다. TLC가 첫 번째 경고를 반복할 때 평범한 TLC는 두 번 출력하지만 `tlc.out`은 한 번 보여줍니다. 이 명령이 읽는 출력에서 TLC가 두 번째 사본을 빼기 때문입니다. 그것은 Java가 `-XX:+UseParallelGC`로 실행될 때만 발생합니다. 그렇지 않으면 TLC의 첫 번째 경고는 한 번 출력하는 그 플래그를 전달하라는 조언이기 때문입니다.
 
-## Show the chart
+## 차트 보여주기
 
-Show `chart.mmd` to the user as a `mermaid` code block. The chart has a budget of 500 states, counted by TLC on the config as written. Above that, the chart draws only the paths to the rules that break, and when no rule breaks, the command writes no `chart.mmd`. It still checks each rule, and the report gives the state count and each bug path. To see the whole graph, make the model smaller.
+`chart.mmd`를 `mermaid` 코드 블록으로 사용자에게 보여주세요. 차트는 작성된 대로 구성에서 TLC로 카운트된 500개 상태의 예산을 갖습니다. 그 위에서 차트는 위반되는 규칙으로 가는 경로만 그리고, 규칙이 위반되지 않을 때 명령은 `chart.mmd`를 작성하지 않습니다. 여전히 각 규칙을 확인하고, 보고서는 상태 카운트와 각 버그 경로를 제공합니다. 전체 그래프를 보려면 모델을 더 작게 만드세요.
 
-Render charts with Pele. When the user asks for an image, or a chart is too large to read as text, follow `references/render.md`. Do not use a different renderer unless the user asks for it.
+Pele로 차트를 렌더링하세요. 사용자가 이미지를 요청하거나 차트가 텍스트로 읽기에 너무 클 때 `references/render.md`를 따르세요. 사용자가 요청하지 않는 한 다른 렌더러를 사용하지 마세요.
 
-## Hand off
+## 넘기기
 
-Give each chart and its Mermaid text to the person who must decide. Add one line for each bug: the rule, the reader's sentence for that rule, and the path as the report numbers it. Say what the model leaves out. Give the command that makes the files again, with a new `--out` folder.
+결정해야 하는 사람에게 각 차트와 Mermaid 텍스트를 제공하세요. 각 버그에 대해 한 줄을 추가하세요: 규칙, 그 규칙에 대한 독자의 문장, 그리고 보고서가 번호를 매기는 경로. 모델이 빠뜨리는 것을 말하세요. 새 `--out` 폴더로 파일을 다시 만드는 명령을 제공하세요.
 
-When the model describes code, replay each bug path against the real code, as a test or a live repro, one step for each action. If a bug does not occur, think that the model is wrong until you show that it is not.
+모델이 코드를 설명할 때 각 버그 경로를 실제 코드에 대해 재생하세요. 테스트 또는 라이브 재현으로, 액션당 하나의 단계. 버그가 발생하지 않으면 모델이 틀렸다고 생각하세요. 그렇지 않다는 것을 보여줄 때까지.

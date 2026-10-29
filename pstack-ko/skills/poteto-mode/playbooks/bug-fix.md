@@ -1,15 +1,15 @@
-### Bug fix
+### 버그 수정
 
-**You own this task. Plan, review, verify.** Delegate investigation and the fix to subagents, stay in the lead. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
+**이 작업을 당신이 소유합니다. 계획하고, 검토하고, 검증하세요.** 조사와 수정을 하위 에이전트에 위임하되, 주도적으로 남으세요. 하위 에이전트 섹션에 따라 각 하위 에이전트의 추론 수준과 빠름 또는 표준 속도를 작업에 맞게 선택하세요.
 
-Be scientific. Every shipped line traces to runtime evidence. Belt-and-suspenders that "might help" is a hypothesis, not a fix. It does not ship. When evidence refutes a hypothesis, revert what it motivated. The smallest change the evidence justifies ships, nothing more.
+과학적이어야 합니다. 출시되는 모든 줄은 런타임 증거로 추적됩니다. "도움이 될 수도"인 벨트-앤드-서스펜더는 수정이 아니라 가설입니다. 출시되지 않습니다. 증거가 가설을 반박하면, 그것이 동기부여한 것을 되돌리세요. 증거가 정당화하는 가장 작은 변경이 출시되며, 그 이상은 아닙니다.
 
-1. Reproduce it yourself on the matching surface via the control skill (Non-negotiables), even when a debug or instrumentation protocol says to ask the user to reproduce. Ask the user only with a stated, specific reason the control surface cannot reach the target, and only after driving it as far as it goes. If it won't reproduce directly, synthesize the trigger, tighten conditions, or instrument until it fires.
-2. Binary-search the cause. Form the candidate hypotheses, then rule them out until one survives. Seed them with `how` over the affected subsystem and the **why** skill for regression history. Each pass, take the split that cuts the most remaining problem space, get runtime evidence, eliminate. When program state is unclear, add instrumentation or logging and read it as the code runs. Don't guess. Drive a long or stubborn hunt with Cursor's `/loop` command. Confirm the surviving *mechanism* with runtime evidence before the step-3 architect/interrogate fan-out.
-3. Plan the fix. If it crosses a function boundary, `architect` first. Delegate implementation to a subagent using your configured bug-fix model (default `grok-4.7-xhigh-fast`) with a specific scope.
-4. Verify on the same surface. The original repro now passes. "Inconclusive" or wrong-surface is not a pass. Flag it. Unit tests show branch behavior, not bug absence.
-5. Stage the commits so the failing repro lands before the fix in git history. See the **tdd** skill for the failing-test-first cadence when the bug has a cheap local test path. Skip it when the test would be expensive, integration-heavy, or unclear.
-   This is the canonical **sequence-verifiable-units** principle skill, the failing test first and the fix on top.
-6. Run **Opening a PR**.
+1. 디버그나 계측 프로토콜이 사용자에게 재현을 요청하라고 말하더라도, 제어 스킬(협상 불가 원칙)을 통해 일치하는 표면에서 직접 재현하세요. 제어 표면이 타깃에 도달할 수 없는 구체적인 이유를 진술하고, 가능한 한 멀리 구동한 후에만 사용자에게 요청하세요. 직접 재현되지 않으면, 트리거를 합성하고, 조건을 조이거나, 발화할 때까지 계측하세요.
+2. 원인을 이진 검색. 후보 가설을 형성한 다음, 하나가 살아남을 때까지 배제. 영향받은 서브시스템에 대한 `how`와 회귀 히스토리에 대한 **why** 스킬로 시딩하세요. 각 패스마다, 남은 문제 공간을 가장 많이 잘라내는 분할을 취하고, 런타임 증거를 얻고, 제거하세요. 프로그램 상태가 불분명하면, 계측이나 로깅을 추가하고 코드가 실행될 때 그것을 읽으세요. 추측하지 마세요. Cursor의 `/loop` 명령으로 길거나 완고한 사냥을 구동하세요. 3단계 architect/interrogate 팬아웃 전에 런타임 증거로 살아남은 *메커니즘*을 확인하세요.
+3. 수정을 계획. 함수 경계를 넘으면, 먼저 `architect`. 구성된 bug-fix 모델(기본 `grok-4.7-xhigh-fast`)을 사용하여 구체적인 범위로 하위 에이전트에 구현을 위임.
+4. 같은 표면에서 검증. 원래 재현이 이제 통과. "불확실함"이나 잘못된 표면은 통과가 아닙니다. 플래그하세요. 단위 테스트는 분기 동작을 보여주지 버그 부재는 아닙니다.
+5. 실패하는 재현이 git 히스토리에서 수정 전에 착륙하도록 커밋을 스테이지. 버그가 저렴한 로컬 테스트 경로를 가질 때 실패하는-테스트-먼저 케이던스를 위해서는 **tdd** 스킬을 참조하세요. 테스트가 비싸거나, 통합 중심이거나, 불분명할 때는 건너뛰세요.
+   이것이 정규 **sequence-verifiable-units** 원칙 스킬이며, 실패하는 테스트가 먼저이고 수정이 위에 있습니다.
+6. **Opening a PR** 실행.
 
-**Reply:** what was broken, root cause, fix, how you verified. Paste failing-then-passing repro output verbatim.
+**답변:** 무엇이 깨졌는지, 근본 원인, 수정, 어떻게 검증했는지. 실패-그리고-통과 재현 출력을 그대로 붙여넣으세요.

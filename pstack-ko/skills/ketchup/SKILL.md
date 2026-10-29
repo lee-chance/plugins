@@ -1,43 +1,43 @@
 ---
 name: ketchup
-description: "Catch the user up on what changed in this chat since their last message, in plain words and small visuals. List every item waiting on them with what they need to decide it from the reply alone. Use for /ketchup."
+description: "사용자의 마지막 메시지 이후 이 채팅에서 변경된 내용을 평범한 단어와 작은 비주얼로 따라잡도록 하세요. 응답만으로 결정하는 데 필요한 것과 함께 그들을 기다리는 모든 항목을 나열하세요. /ketchup에 사용하세요."
 disable-model-invocation: true
 ---
 
 # Ketchup
 
-Catch the user up on what changed in this chat since the last message they wrote before `/ketchup`, and help them understand each change, not only where it stands. Then lay out every call waiting on them so they can make it from your reply alone. Notifications and subagent results are not their messages. Assume the user remembers their last message and nothing after it.
+사용자가 `/ketchup` 전에 작성한 마지막 메시지 이후 이 채팅에서 변경된 내용을 따라잡도록 하고, 각 변경 사항이 어디에 있는지뿐만 아니라 이해하도록 도와주세요. 그런 다음 그들이 당신의 응답만으로 할 수 있도록 그들을 기다리는 모든 호출을 배치하세요. 알림과 서브에이전트 결과는 그들의 메시지가 아닙니다. 사용자가 마지막 메시지와 그 이후는 아무것도 기억하지 못한다고 가정하세요.
 
-Use [`/bro`](../bro/SKILL.md)'s voice, not its task: plain words, short sentences, no jargon, like one person catching up another. Say what changed for the user, not how you did it. Say "the tests pass", not "CI is green". Leave out hashes, file paths, commands, build numbers, and test counts unless the user needs one to act. Call each PR, branch, or agent by a name the user would know, not by a label you invented. If a fact needs context to make sense, give the context or leave the fact out.
+[`/bro`](../bro/SKILL.md)의 목소리를 사용하되, 작업은 아닙니다: 평범한 단어, 짧은 문장, 전문 용어 없음, 한 사람이 다른 사람을 따라잡는 것처럼. 어떻게 했는지가 아니라 사용자를 위해 무엇이 변경되었는지 말하세요. "CI is green"이 아니라 "the tests pass"라고 말하세요. 사용자가 행동하는 데 필요하지 않는 한 해시, 파일 경로, 명령, 빌드 번호, 테스트 카운트는 빼세요. 각 PR, 브랜치 또는 에이전트를 당신이 발명한 레이블이 아니라 사용자가 알 것 같은 이름으로 호출하세요. 사실이 이해되려면 컨텍스트가 필요하면 컨텍스트를 제공하거나 사실을 빼세요.
 
-## Gather what changed
+## 변경된 것 수집
 
-Keep this turn read-only. Make visuals only from what you already have: do not change code, start an app or a job, or post anything. Collect your own work since that message, reports from subagents, and messages from anyone else in this chat. Check the current state of each PR, CI run, or agent this chat touched. Check each number you will show against the facts it comes from, and say so when you correct one.
+이 턴을 읽기 전용으로 유지하세요. 이미 가지고 있는 것에서만 비주얼을 만드세요: 코드를 변경하거나, 앱이나 작업을 시작하거나, 무언가를 게시하지 마세요. 해당 메시지 이후의 자신의 작업, 서브에이전트의 보고서, 이 채팅에서 다른 사람의 메시지를 수집하세요. 이 채팅이 터치한 각 PR, CI 실행 또는 에이전트의 현재 상태를 확인하세요. 표시할 각 숫자를 그것이 나온 사실과 비교하여 확인하고, 하나를 수정할 때 그렇게 말하세요.
 
-An action item is a call or step only the user can take, such as a product choice, an approval, an irreversible action, or access you lack. Include any still waiting on the user, even one raised before their last message. Work you can still do yourself is not an action item. Never make up a call to fill the reply. A step the user did not ask for and the work does not need is not an action item, unless it is irreversible and waiting on the user: give it one line and no visual.
+액션 아이템은 사용자만 취할 수 있는 호출 또는 단계입니다. 제품 선택, 승인, 되돌릴 수 없는 행동, 또는 당신이 부족한 접근 권한과 같은. 사용자의 마지막 메시지 전에 제기된 것이라도 여전히 사용자를 기다리는 것을 포함하세요. 당신이 여전히 스스로 할 수 있는 작업은 액션 아이템이 아닙니다. 응답을 채우기 위해 호출을 만들어내지 마세요. 사용자가 요청하지 않고 작업이 필요하지 않은 단계는 액션 아이템이 아닙니다. 되돌릴 수 없고 사용자를 기다리는 경우를 제외하고는: 한 줄을 주고 비주얼은 없습니다.
 
-One call can cover many items, such as each PR in a set awaiting merge. For each item, collect its link, what it changes for users, the evidence behind your pick, its risk, and your pick. Write "unknown" for a fact the call needs that you do not know. Leave out a link you do not have.
+하나의 호출은 병합을 기다리는 세트의 각 PR과 같이 많은 항목을 커버할 수 있습니다. 각 항목에 대해 링크, 사용자를 위해 변경하는 것, 선택 뒤의 증거, 위험 및 선택을 수집하세요. 호출이 필요하지만 모르는 사실에 대해 "unknown"을 작성하세요. 가지고 있지 않은 링크는 빼세요.
 
-## Write the reply
+## 응답 작성
 
-Spend words on the calls, not on the story. Keep what happened under 100 words, not counting pictures, and shorter when less happened. Leave out work that changed nothing for the user. Give each item about 30 words. The reply grows with the number of items: two items need well under 150 words in all, not counting pictures, and thirty need far more. Never cut items or shrink them to stay under a word count: no count in place of a list, and no link in place of an item. A link can add depth, but the reply alone must be enough to decide.
+호출에 단어를 보내고, 이야기에는 아닙니다. 일어난 것을 그림을 세지 않고 100단어 미만으로 유지하고, 적게 일어났을 때는 더 짧게 하세요. 사용자를 위해 아무것도 변경하지 않은 작업은 빼세요. 각 항목에 약 30단어를 제공하세요. 응답은 항목 수와 함께 성장합니다: 두 항목은 그림을 세지 않고 총 150단어 미만이 필요하고, 30개는 훨씬 더 많이 필요합니다. 단어 수 아래에 머물기 위해 항목을 자르거나 축소하지 마세요: 목록 대신 카운트 없음, 항목 대신 링크 없음. 링크는 깊이를 추가할 수 있지만 응답만으로 결정하기에 충분해야 합니다.
 
-Open with one short sentence that names what waits on the user, or says nothing does. The action items give the detail. If nothing happened and nothing waits on the user, say so and stop.
+사용자를 기다리는 것을 명명하는 하나의 짧은 문장으로 열거나, 아무것도 없다고 말하세요. 액션 아이템이 세부 사항을 제공합니다. 아무 일도 일어나지 않고 아무것도 사용자를 기다리지 않으면 그렇게 말하고 멈추세요.
 
-Then show what happened, pictures first. Embed inline the screenshots and videos the work produced, then any diagram that explains a change. Then sum up in one short bullet per thing the user asked for: what came of it, and whether it is done, still running, failed, or not checked. Write each line the way you would say it out loud: "Search was slow from a missing index", not "Search review: done" or "Slow search: missing index". Name any bug found and fixed on the way. Each line must stay true when read alone. Never mark something done that still waits on the user, and leave out anything the action items say. Under the summary, give at most three short lines that change what the user knows or must do. Then name in one line any work left that you can do yourself.
+그런 다음 일어난 것을 보여주세요. 그림을 먼저. 작업이 생성한 스크린샷과 비디오를 인라인으로 삽입한 다음 변경을 설명하는 다이어그램. 그런 다음 사용자가 요청한 것당 하나의 짧은 글머리 기호로 요약하세요: 그것이 어떻게 되었는지, 완료되었는지, 여전히 실행 중인지, 실패했는지, 확인되지 않았는지. 소리 내어 말하는 방식으로 각 줄을 작성하세요: "Search review: done" 또는 "Slow search: missing index"가 아니라 "Search was slow from a missing index". 발견되고 수정된 모든 버그를 명명하세요. 각 줄은 혼자 읽을 때 사실이어야 합니다. 여전히 사용자를 기다리는 것을 완료로 표시하지 말고, 액션 아이템이 말하는 것은 빼세요. 요약 아래에 사용자가 알아야 하거나 해야 하는 것을 변경하는 최대 세 개의 짧은 줄을 제공하세요. 그런 다음 당신이 스스로 할 수 있는 남은 작업을 한 줄로 명명하세요.
 
-Then list the action items. Ask the call the user owns, such as merge, approve, or pick, and give your pick. A step you would take first goes in your pick. So does anything that must happen first, and anything that cannot be undone. Give the number or link of each PR, issue, or agent a call is about, also in a call between options.
+그런 다음 액션 아이템을 나열하세요. 사용자가 소유한 호출을 요청하세요. 병합, 승인 또는 선택과 같은. 당신의 선택을 제공하세요. 먼저 취할 단계는 당신의 선택으로 갑니다. 먼저 일어나야 하는 것도 마찬가지이고, 취소할 수 없는 것도 마찬가지입니다. 호출이 관련된 각 PR, 이슈 또는 에이전트의 번호나 링크를 제공하고, 옵션 간 호출에서도 마찬가지입니다.
 
-Fit the shape to the call. A call about one item is one bullet: the call, your pick, what it changes for users, the evidence behind your pick, and its risk, with the item named once. When items share a call, write the call and your pick once, then give each item its own bullet, riskiest first: its link and name, what it changes for users, the evidence behind your pick, and its risk. Name an item's pick only where it differs from the call's. Give each item's risk even when it is low, such as "Low risk: only the colors change." Say what waiting costs only when it is more than a delay, such as a deadline or lost data.
+호출에 형태를 맞추세요. 하나의 항목에 대한 호출은 하나의 글머리 기호입니다: 호출, 당신의 선택, 사용자를 위해 변경하는 것, 당신의 선택 뒤의 증거, 그리고 그 위험, 항목이 한 번 명명됨. 항목이 호출을 공유할 때 호출과 당신의 선택을 한 번 작성한 다음 각 항목에 자체 글머리 기호를 제공하세요. 가장 위험한 것을 먼저: 링크와 이름, 사용자를 위해 변경하는 것, 당신의 선택 뒤의 증거, 그리고 그 위험. 항목의 선택이 호출의 선택과 다를 때만 명명하세요. 낮을 때도 각 항목의 위험을 제공하세요. "Low risk: only the colors change."와 같이. 기다리는 것이 지연 이상일 때만 비용을 말하세요. 마감일이나 손실된 데이터와 같이.
 
-For a call between options, give every option the work weighed, each with what it gets the user and what it costs, and the current state when there is one. Those costs are the call's risk, so add no separate risk line. When the screenshots above show the options, write each option's gain and cost under its screenshot.
+옵션 간 호출의 경우 작업이 가중한 모든 옵션을 제공하고, 각각에 사용자가 얻는 것과 비용이 드는 것, 그리고 현재 상태가 있을 때. 그 비용은 호출의 위험이므로 별도의 위험 라인을 추가하지 마세요. 위의 스크린샷이 옵션을 보여줄 때 각 옵션의 이득과 비용을 그 스크린샷 아래에 작성하세요.
 
-## Visuals
+## 비주얼
 
-A visual is a picture: a screenshot, a video, a Mermaid diagram, a chart or diagram from `/visualize`, or a generated image. A Markdown table is not a visual, even with before and after columns.
+비주얼은 그림입니다: 스크린샷, 비디오, Mermaid 다이어그램, `/visualize`의 차트 또는 다이어그램, 또는 생성된 이미지. Markdown 테이블은 이전과 이후 열이 있어도 비주얼이 아닙니다.
 
-When something is easier to grasp as a picture than as sentences, draw it: how a design or system works, a PR stack or dependency chain with each PR's state, a before and after of a fix, or options side by side. Never draw a status list, a list of action items, or boxes with nothing connecting them. Never give a fact twice, in text or across visuals.
+무언가가 문장보다 그림으로 파악하기 쉬울 때 그리세요: 설계나 시스템이 어떻게 작동하는지, 각 PR의 상태가 있는 PR 스택 또는 종속성 체인, 수정의 이전과 이후, 또는 나란히 옵션. 상태 목록, 액션 아이템 목록, 또는 연결되는 것이 없는 상자를 절대 그리지 마세요. 텍스트나 비주얼 전체에 걸쳐 사실을 두 번 제공하지 마세요.
 
-Keep each visual small enough to read at a glance: at most six boxes, with at most eight words in each. Write labels as plain words a person would say, not tags like "Tests: pass". A fact that needs a sentence belongs in the text, or nowhere.
+각 비주얼을 한눈에 읽을 수 있을 만큼 작게 유지하세요: 최대 6개의 상자, 각각에 최대 8단어. 레이블을 "Tests: pass"와 같은 태그가 아니라 사람이 말할 평범한 단어로 작성하세요. 문장이 필요한 사실은 텍스트에 속하거나 어디에도 속하지 않습니다.
 
-Embed screenshots and videos inline when the change is visible, not only as links. If a visible change has none, mark its summary line "No screenshot yet," and say there what changed on screen. Draw diagrams and charts from facts you have: a Mermaid diagram for how things connect and a `/visualize` chart for numbers. Never invent a number, and never draw or generate a picture of a screen you did not capture. Link only artifacts that exist.
+변경 사항이 보일 때 링크만이 아니라 스크린샷과 비디오를 인라인으로 삽입하세요. 보이는 변경 사항이 없으면 요약 줄을 "No screenshot yet"로 표시하고 화면에서 무엇이 변경되었는지 말하세요. 가지고 있는 사실에서 다이어그램과 차트를 그리세요: 어떻게 연결되는지에 대한 Mermaid 다이어그램과 숫자에 대한 `/visualize` 차트. 숫자를 절대 발명하지 말고, 캡처하지 않은 화면의 그림을 절대 그리거나 생성하지 마세요. 존재하는 아티팩트만 링크하세요.

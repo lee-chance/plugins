@@ -1,82 +1,82 @@
 ---
 name: show-me-your-work
-description: "Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision (what, why, evidence, result). Local by default; commit it when a reviewer needs the trail to trust the result. Use for /show-me-your-work, autonomous or multi-phase runs, or work a human reviews after stepping away."
+description: "장기 실행 또는 무인 작업에 대한 검토 가능한 결정 추적 유지: 결정당 하나의 행이 있는 TSV 로그 (무엇, 왜, 증거, 결과). 기본적으로 로컬; 리뷰어가 결과를 신뢰하기 위해 추적이 필요할 때 커밋하세요. /show-me-your-work, 자율 또는 다단계 실행, 또는 인간이 떠난 후 검토하는 작업에 사용하세요."
 disable-model-invocation: true
 ---
 
 # Show me your work
 
-Keep one canonical log.
+하나의 표준 로그를 유지하세요.
 
-## The format
+## 형식
 
-A single TSV file, one row per decision. Cells stay single-line. Evidence is a pointer, not prose.
+결정당 하나의 행이 있는 단일 TSV 파일. 셀은 단일 줄로 유지됩니다. 증거는 산문이 아니라 포인터입니다.
 
-Copy `references/decision-log-template.tsv` (the header row) to start a clean log. Columns:
+깨끗한 로그를 시작하려면 `references/decision-log-template.tsv` (헤더 행)를 복사하세요. 열:
 
-- **ts.** ISO8601 timestamp.
-- **phase.** The phase or workstream.
-- **decision.** What was chosen or done, one line.
-- **why.** The reason in plain words. If a principle drove it, say it plainly, not as a jargon tag.
-- **evidence.** A link or path that proves it: commit SHA, PR number, `file:line`, or an artifact, trace, or screenshot path. Never a paragraph.
-- **result.** The outcome or predicate state: `tests green`, `reverted`, `pixel-diff 0`, `INCONCLUSIVE`, `open`.
+- **ts.** ISO8601 타임스탬프.
+- **phase.** 단계 또는 워크스트림.
+- **decision.** 선택되거나 수행된 것, 한 줄.
+- **why.** 평범한 단어로 이유. 원칙이 그것을 추진했다면 전문 용어 태그가 아니라 평범하게 말하세요.
+- **evidence.** 증명하는 링크 또는 경로: 커밋 SHA, PR 번호, `file:line`, 또는 아티팩트, 추적 또는 스크린샷 경로. 절대 단락이 아닙니다.
+- **result.** 결과 또는 술어 상태: `tests green`, `reverted`, `pixel-diff 0`, `INCONCLUSIVE`, `open`.
 
-An example, plain-spoken so a reviewer reads it at a glance.
+리뷰어가 한눈에 읽을 수 있도록 평범하게 말하는 예제.
 
 ```
 ts	phase	decision	why	evidence	result
-2026-05-24T09:02:00Z	frame	counted the work first, about 100 components and roughly 75 hours	wanted to know the size before starting a long run	commit 3a9f1c2	found 5 things to sort out before starting
-2026-05-24T09:40:00Z	harness	took screenshots of the old version before changing anything	so we can compare old against new and catch any visual change	scripts/snapshot.sh, baseline/	saved 120 reference screenshots
-2026-05-24T11:15:00Z	widget	moved the widget styles over without changing how it looks	keep the change small and the result identical	commit 7c21e0a, pixel-diff 0	looks identical, tests pass
-2026-05-24T12:30:00Z	widget	threw out a helper's work because its screenshots were blank	checked the real files instead of trusting its summary	worktree reset	reverted, tightened the instructions for next time
+2026-05-24T09:02:00Z	frame	먼저 작업을 세었고, 약 100개의 구성 요소와 대략 75시간	긴 실행을 시작하기 전에 크기를 알고 싶었음	commit 3a9f1c2	시작하기 전에 정리할 것 5개 발견
+2026-05-24T09:40:00Z	harness	무언가를 변경하기 전에 이전 버전의 스크린샷을 찍음	이전과 새 것을 비교하고 모든 시각적 변경을 잡을 수 있도록	scripts/snapshot.sh, baseline/	120개의 참조 스크린샷 저장
+2026-05-24T11:15:00Z	widget	위젯 스타일을 보이는 방식을 변경하지 않고 이동	변경을 작게 유지하고 결과를 동일하게	commit 7c21e0a, pixel-diff 0	동일하게 보임, 테스트 통과
+2026-05-24T12:30:00Z	widget	스크린샷이 비어 있었기 때문에 헬퍼의 작업을 버림	요약을 신뢰하는 대신 실제 파일을 확인	worktree reset	되돌림, 다음 번을 위해 지침 강화
 ```
 
-## Logging a row
+## 행 로깅
 
-Write each entry the way you'd tell a teammate what you did. Plain words, concrete actions, no AI speak or abstract jargon (the **unslop** skill applies to log text too).
+팀원에게 무엇을 했는지 말하는 방식으로 각 항목을 작성하세요. 평범한 단어, 구체적인 행동, AI 언어나 추상 전문 용어 없음 (**unslop** 스킬도 로그 텍스트에 적용됩니다).
 
-Use the helper `scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>`. It stamps `ts`, writes the header on first use, strips stray tabs/newlines, and prefixes any cell starting with `=`, `+`, `-`, or `@` with a single quote. A bare `printf` appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
+헬퍼 `scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>`를 사용하세요. `ts`를 스탬프하고, 첫 사용 시 헤더를 작성하고, 잘못된 탭/줄바꿈을 제거하고, `=`, `+`, `-` 또는 `@`로 시작하는 모든 셀에 작은따옴표로 접두사를 붙입니다. 행을 추가하는 베어 `printf`도 작동하지만, 셀이 생성되거나 사용자가 제공한 텍스트에서 나올 때 동일한 바이트를 염두에 두세요.
 
-Log decision points and checkpoints, not every action: a fork chosen, a unit completed with its verification result, a pivot or revert with its trigger, a blocker surfaced, a gate fixed. For loop runs, one row per iteration. Skip the trivial and self-evident.
+결정 지점과 체크포인트를 로깅하세요. 모든 행동이 아니라: 선택한 포크, 검증 결과와 함께 완료된 단위, 트리거와 함께 피벗 또는 되돌리기, 표면화된 차단기, 수정된 게이트. 루프 실행의 경우 반복당 하나의 행. 사소하고 자명한 것은 건너뛰세요.
 
-A run is one agent conversation, including its later turns and any summary of it. A pickup, a replacement agent, or a new chat starts a new run. When a run adds to a log that already has rows, its first row has phase `start`, and so does its first row after another run's `start` row. So a run that comes back to a log in a later turn first reads the log's last rows to see whether another run wrote since. A `start` row names the `ts` range of the rows before it that this run did not write, and its evidence names this run, such as its agent id. Use phase `start` for nothing else.
+실행은 나중 턴과 요약을 포함하여 하나의 에이전트 대화입니다. 픽업, 교체 에이전트 또는 새 채팅은 새 실행을 시작합니다. 실행이 이미 행이 있는 로그에 추가할 때 첫 번째 행은 단계 `start`를 갖고, 다른 실행의 `start` 행 후의 첫 번째 행도 마찬가지입니다. 따라서 나중 턴에 로그로 돌아오는 실행은 먼저 로그의 마지막 행을 읽어 다른 실행이 그 이후 작성했는지 확인합니다. `start` 행은 이 실행이 작성하지 않은 그 이전 행의 `ts` 범위를 명명하고, 증거는 에이전트 id와 같은 이 실행을 명명합니다. 다른 것에 대해 단계 `start`를 사용하지 마세요.
 
-## Where it lives
+## 어디에 있는가
 
-By default the log is a working artifact, not committed. Keep it at `decisions.tsv` in the work dir, or `.audit/<task-slug>.tsv` when several efforts run at once, and leave it out of git.
+기본적으로 로그는 커밋되지 않은 작업 아티팩트입니다. 작업 디렉토리에 `decisions.tsv`로, 또는 여러 노력이 동시에 실행될 때 `.audit/<task-slug>.tsv`로 유지하고, git에서 빼세요.
 
-Commit it only when the work is ambitious enough that a reviewer needs the trail to trust the result.
+작업이 리뷰어가 결과를 신뢰하기 위해 추적이 필요할 만큼 충분히 야심 찰 때만 커밋하세요.
 
-## Rules
+## 규칙
 
-- Append-only. A wrong call gets a new row that supersedes it. Never edit or delete history.
-- Prefer evidence produced by committed scripts over hand-made one-offs (the **encode-lessons-in-structure** principle skill).
+- 추가 전용. 잘못된 호출은 그것을 대체하는 새 행을 받습니다. 기록을 절대 편집하거나 삭제하지 마세요.
+- 손으로 만든 일회성보다 커밋된 스크립트에 의해 생성된 증거를 선호하세요 (**encode-lessons-in-structure** 원칙 스킬).
 
-## Audit the log against the transcript
+## 트랜스크립트에 대해 로그 감사
 
-At the end of the run, before handing back, check the log told the truth. Read this run's transcript under the active workspace's `agent-transcripts/` directory (the system prompt names the path). Don't glob across `~/.cursor/projects/*/`. That reads unrelated private chats. Walk this run's rows against what actually happened. Each stretch of them begins at one of this run's `start` rows, or at the first row if this run created the log, and ends at the next `start` row of another run:
+실행 종료 시, 반환하기 전에 로그가 진실을 말했는지 확인하세요. 활성 워크스페이스의 `agent-transcripts/` 디렉토리 (시스템 프롬프트가 경로를 명명)에서 이 실행의 트랜스크립트를 읽으세요. `~/.cursor/projects/*/` 전체에 glob하지 마세요. 그것은 관련 없는 비공개 채팅을 읽습니다. 이 실행의 행을 실제로 일어난 것에 대해 걸으세요. 각 stretch는 이 실행의 `start` 행 중 하나에서 시작하거나, 이 실행이 로그를 생성했다면 첫 번째 행에서 시작하고, 다른 실행의 다음 `start` 행에서 끝납니다:
 
-- Check that every row maps to a real decision or action.
-- Check that each row's evidence resolves and shows what the row claims.
-- A fork, pivot, or abandoned approach that shaped the work but isn't logged is a gap. Add it.
+- 모든 행이 실제 결정 또는 행동에 매핑되는지 확인하세요.
+- 각 행의 증거가 resolve되고 행이 주장하는 것을 보여주는지 확인하세요.
+- 작업을 형성했지만 로깅되지 않은 포크, 피벗 또는 포기된 접근은 갭입니다. 추가하세요.
 
-Correct the log, not the story. The audit never edits or removes a row, even an invented one. When a row records neither a real decision nor a real action, or its claim or evidence is wrong, add a row that supersedes it with what actually happened and a pointer that resolves. This audit does not check rows outside this run's stretches. If this run's own work shows one of them is wrong, supersede it like any wrong call.
+이야기가 아니라 로그를 수정하세요. 감사는 발명된 것이라도 행을 절대 편집하거나 제거하지 않습니다. 행이 실제 결정도 실제 행동도 기록하지 않거나, 주장이나 증거가 틀렸을 때 실제로 일어난 것과 resolve되는 포인터로 그것을 대체하는 행을 추가하세요. 이 감사는 이 실행의 stretch 밖의 행을 확인하지 않습니다. 이 실행의 자체 작업이 그 중 하나가 틀렸음을 보여주면 잘못된 호출처럼 대체하세요.
 
-## Cross-model review of the trail
+## 추적의 교차 모델 리뷰
 
-Before handing back, spawn a subagent on a different model family from the one that did the work. Self-review is not a substitute. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the **poteto-mode** skill.
+반환하기 전에 작업을 수행한 것과 다른 모델 패밀리의 서브에이전트를 생성하세요. 자기 리뷰는 대체가 아닙니다. 서브에이전트는 감사 추적과 실행의 트랜스크립트를 읽은 다음 사용자가 주의를 기울여야 할 것을 플래그합니다. 작업의 재실행이 아니라 차선이거나 위험한 것에 대한 스캔. **poteto-mode** 스킬의 Subagents 섹션에 따라 작업에 대한 각 서브에이전트의 추론 수준과 빠른 또는 표준 속도를 선택하세요.
 
-- Decisions logged with weak or absent evidence.
-- Verification steps skipped or claimed without proof in the transcript.
-- Choices that look risky in hindsight (premature, scope-creeping, papering over a symptom).
-- Gaps the user would otherwise miss on a casual skim.
+- 약하거나 없는 증거로 로깅된 결정.
+- 건너뛰거나 트랜스크립트에서 증거 없이 주장된 검증 단계.
+- 사후에 위험해 보이는 선택 (조기, 범위 확대, 증상 덮기).
+- 사용자가 캐주얼 스킴에서 놓칠 갭.
 
-Every reply for a run that produced a trail ends with an "Attention" section. Lead with the reviewer's model on its own line (`reviewed by <model>`), then list each flag pointing to specific rows or moments. "No flags" is a valid value. The model name is not.
+추적을 생성한 실행에 대한 모든 응답은 "Attention" 섹션으로 끝납니다. 리뷰어의 모델을 자체 줄에서 이끌고 (`reviewed by <model>`), 특정 행이나 순간을 가리키는 각 플래그를 나열하세요. "No flags"는 유효한 값입니다. 모델 이름은 아닙니다.
 
-## Reviewing the trail
+## 추적 검토
 
-Read top to bottom, follow the evidence pointers, spot-check. GitHub renders a committed TSV as a table. `column -s$'\t' -t decisions.tsv` renders it in a terminal.
+위에서 아래로 읽고, 증거 포인터를 따르고, 스팟 체크하세요. GitHub는 커밋된 TSV를 테이블로 렌더링합니다. `column -s$'\t' -t decisions.tsv`는 터미널에서 렌더링합니다.
 
-## Composing this skill
+## 이 스킬 구성
 
-Other skills route their audit trail here instead of inventing one. Reference it by name and let it own the format. Don't restate the columns.
+다른 스킬은 하나를 발명하는 대신 감사 추적을 여기로 라우팅합니다. 이름으로 참조하고 형식을 소유하게 하세요. 열을 재진술하지 마세요.

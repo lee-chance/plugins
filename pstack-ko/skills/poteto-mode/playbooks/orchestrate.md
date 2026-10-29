@@ -1,25 +1,25 @@
-### Orchestrate
+### 오케스트레이션
 
-**You run the program, never the code. Decide which agent does each piece of work, then check what each one produces.** For a standing project handed to one coordinator chat: multi-day, many stacked PRs, dozens to hundreds of subagents, few human turns. One task driven to a predicate is Autonomous run. One ambitious run that needs a bespoke workflow is figure-it-out. Work that one agent could finish inside the session's budget is not a program.
+**코드가 아니라 프로그램을 실행합니다. 어느 에이전트가 각 작업 조각을 하는지 결정한 다음, 각각이 생성하는 것을 검사하세요.** 한 코디네이터 채팅에 전달된 지속적인 프로젝트를 위해: 여러 날, 많은 스택된 PR, 수십에서 수백의 하위 에이전트, 적은 인간 턴. 술어까지 구동되는 하나의 작업은 Autonomous run입니다. 맞춤형 워크플로우가 필요한 하나의 야심찬 실행은 figure-it-out입니다. 한 에이전트가 세션 예산 내에서 완료할 수 있는 작업은 프로그램이 아닙니다.
 
-Run it with your own tools. Spawn workers with `Task`. Keep the program's state in the Project tracker (`notes.md`) and the Project store. Watch each PR with PR and CI event subscriptions when your harness has them. Call no scripts, run no polling loops, and never relay messages or status between agents.
+자신의 도구로 실행하세요. `Task`로 워커 생성. 프로젝트 추적기(`notes.md`)와 프로젝트 스토어에 프로그램 상태를 유지. 하네스가 가지고 있을 때 PR과 CI 이벤트 구독으로 각 PR을 감시. 스크립트 호출 없음, 폴링 루프 실행 없음, 에이전트 간 메시지나 상태를 절대 중계하지 마세요.
 
-#### Topology
+#### 토폴로지
 
-- **One owner per PR.** The owner is the only writer of its branch and carries the PR from build to merge. Only the owner pushes, rebases, or retargets it. Closing or retargeting a base PR orphans every PR above it, so the owner does that only on your call. You never author or edit code. Conflicted merges, chain rebases, and fixes go to owners.
-- **A fresh worker for each independent task.** Its kickoff carries everything it needs, including each upstream report it depends on, pasted in full. Workers can't see their siblings. Run workers on a new cloud VM (`environment: "cloud"`) unless the work needs this machine: a `control-ui` or `control-cli` runtime check (from `cursor-team-kit`), local transcripts, a simulator, or auth that exists only here. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
-- **A sub-coordinator only when one area has many parallel workers.** It owns that area's workers and kickoffs and sends you one rollup, never raw worker reports. Stop at three levels: you, sub-coordinators, and workers. Keep about ten workers in flight per coordinator, and start the next one as each finishes instead of waiting on a whole batch.
-- **Fork when new work needs a worker's built state,** such as its checkout, uncommitted changes, or a running process. Message a worker only for a follow-up on the same work. Never message one to check on it, because a message restarts an idle agent.
-- **Each PR gets a verifier that isn't its author,** on a different model family. The owner merges only on that verifier's pass at the current head.
-- **Start with one unit.** Take it through kickoff, owner, verifier, and merge before you fan out, so a flaw in the kickoff costs one agent instead of fifty. On near-identical cheap units, the first unit is that test.
+- **PR당 한 소유자.** 소유자는 자체 브랜치의 유일한 작성자이며 PR을 빌드에서 병합까지 담당합니다. 소유자만 푸시, 리베이스, 또는 재타깃합니다. 베이스 PR을 닫거나 재타깃하면 그 위의 모든 PR이 고아가 되므로, 소유자는 당신의 호출에서만 그것을 합니다. 당신은 절대 코드를 작성하거나 편집하지 않습니다. 충돌하는 병합, 체인 리베이스, 수정은 소유자에게 갑니다.
+- **각 독립적인 작업에 대한 새 워커.** 그것의 킥오프는 의존하는 각 업스트림 보고서를 포함하여 필요한 모든 것을 담으며, 전체로 붙여넣습니다. 워커는 형제를 볼 수 없습니다. 작업이 이 머신을 필요로 하지 않는 한 새 클라우드 VM(`environment: "cloud"`)에서 워커를 실행: `control-ui` 또는 `control-cli` 런타임 검사(`cursor-team-kit`에서), 로컬 대화록, 시뮬레이터, 또는 여기에만 존재하는 인증. 하위 에이전트 섹션에 따라 각 하위 에이전트의 추론 수준과 빠름 또는 표준 속도를 작업에 맞게 선택하세요.
+- **한 영역에 많은 병렬 워커가 있을 때만 하위 코디네이터.** 그 영역의 워커와 킥오프를 소유하고 하나의 롤업을 보내며, 절대 원시 워커 보고서가 아닙니다. 세 수준에서 중단: 당신, 하위 코디네이터, 워커. 코디네이터당 약 10개의 워커를 비행 중에 유지하고, 전체 배치를 기다리는 대신 각각이 완료될 때 다음을 시작하세요.
+- **새 작업이 워커의 빌드 상태를 필요로 할 때 포크,** 체크아웃, 커밋되지 않은 변경, 또는 실행 중인 프로세스 같은. 같은 작업에 대한 후속 조치에 대해서만 워커에 메시지. 검사하기 위해 절대 메시지하지 마세요. 메시지가 유휴 에이전트를 재시작하기 때문입니다.
+- **각 PR은 작성자가 아닌 검증자를 얻으며,** 다른 모델 패밀리에서. 소유자는 현재 head에서 그 검증자의 패스에서만 병합합니다.
+- **하나의 단위로 시작하세요.** 팬아웃하기 전에 킥오프, 소유자, 검증자, 병합을 통해 가져가서, 킥오프의 결함이 50개가 아니라 하나의 에이전트 비용이 되도록 합니다. 거의 동일한 저렴한 단위에서, 첫 번째 단위가 그 테스트입니다.
 
-#### Supervision
+#### 감독
 
-- **Each kickoff names the evidence that proves the work is done,** such as a command and its expected output, a control-skill check, or an artifact. It also names the goal, the paths the worker may and may not write, and the actions it must not take. If you can't name the evidence, the unit isn't scoped yet.
-- **Read the diff or the artifact, not only the worker's summary.** Green CI is an input to a verdict, not a verdict. Behavioral work needs more than a type check. A verdict covers one head SHA, so a new push needs a new verdict. Read a sample of each sub-coordinator's kickoffs while its workers run, and fix its instructions when one fails.
-- **Send back work that drifts from scope or grows past what was asked.** Keep only the fixes that block the program, and park the rest as follow-ups.
-- **Check a PR's live state before you report on it,** with `gh pr view` and `gh pr checks` or your forge's equivalents, not the worker's last report. Account for every worker you spawned as done, replaced, or absorbed into another worker's scope.
-- **Stop or replace a worker that stalls or loops.** Judge it by its pushes and PR activity, not its status text. Retry by cause: a smaller scope after a context or memory limit, the same kickoff after a dropped connection, and a different model after a tool error. After two retries, drop the unit and replan around it. When a stopped worker returns late, check its result against the PR's current state, and hand any unique findings to a fresh worker.
-- **Ask the user only for a real decision or a blocker,** such as an irreversible action, a product or preference call that no experiment settles, or a dead end that survived a replan. Rebase mechanics, retries, CI flakes, review triage, and "should I keep going" never reach the user.
+- **각 킥오프는 작업이 완료되었음을 증명하는 증거를 명명합니다,** 명령과 예상 출력, 제어 스킬 검사, 또는 아티팩트 같은. 또한 목표, 워커가 쓸 수 있고 없는 경로, 취하지 말아야 할 행동을 명명합니다. 증거를 명명할 수 없으면, 단위가 아직 범위가 정해지지 않은 것입니다.
+- **워커의 요약만이 아니라 차이나 아티팩트를 읽으세요.** 녹색 CI는 판정에 대한 입력이지 판정이 아닙니다. 동작 작업은 타입 검사 이상이 필요합니다. 판정은 하나의 head SHA를 커버하므로, 새 푸시는 새 판정이 필요합니다. 워커가 실행되는 동안 각 하위 코디네이터의 킥오프 샘플을 읽고, 하나가 실패할 때 지시를 수정하세요.
+- **범위에서 드리프트하거나 요청된 것을 넘어 자라는 작업을 돌려보내세요.** 프로그램을 차단하는 수정만 유지하고, 나머지는 후속 조치로 파킹하세요.
+- **보고하기 전에 PR의 라이브 상태를 검사하세요,** 워커의 마지막 보고서가 아니라 `gh pr view`와 `gh pr checks` 또는 forge의 동등물로. 생성한 모든 워커를 완료됨, 교체됨, 또는 다른 워커의 범위에 흡수됨으로 설명하세요.
+- **정체하거나 루프하는 워커를 중단하거나 교체하세요.** 상태 텍스트가 아니라 푸시와 PR 활동으로 판단하세요. 원인별로 재시도: 컨텍스트나 메모리 한계 후 더 작은 범위, 연결 끊김 후 같은 킥오프, 도구 에러 후 다른 모델. 두 번의 재시도 후, 단위를 삭제하고 그 주위로 재계획. 중단된 워커가 늦게 반환되면, PR의 현재 상태에 대해 결과를 검사하고, 고유한 발견을 새 워커에게 넘기세요.
+- **실제 결정이나 차단자에 대해서만 사용자에게 질문하세요,** 되돌릴 수 없는 행동, 실험으로 해결되지 않는 제품이나 선호 결정, 또는 재계획을 견딘 막다른 골목 같은. 리베이스 메커닉, 재시도, CI flake, 리뷰 분류, "계속해야 할까요"는 절대 사용자에게 도달하지 않습니다.
 
-**Reply:** what landed against the goal, each PR's live state and verdict with its link, what was dropped and why, and the decisions waiting on the user.
+**답변:** 목표에 대해 착륙한 것, 각 PR의 라이브 상태와 판정 및 링크, 삭제된 것과 이유, 사용자를 기다리는 결정.

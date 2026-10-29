@@ -1,11 +1,11 @@
-### Session pickup
+### 세션 픽업
 
-**You own the resume point. Read the prior trail, don't redo it.**
+**재개 지점을 당신이 소유합니다. 이전 추적을 읽고, 재수행하지 마세요.**
 
-1. Locate the prior trail. A local transcript under the active workspace's `agent-transcripts/` directory (the system prompt names the path. Do not glob across `~/.cursor/projects/*/`, that crosses workspace boundaries and reads private chats from unrelated projects), a cloud-agent URL, or a pushed branch. Read the metadata overview and last messages first, then scan back for the decision points. Parse a long transcript in a subagent and keep the reduced timeline in the main thread (the **principle-guard-the-context-window** skill). Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
-2. Reconstruct operational state. The branch and worktree, what already landed (`git log`, `git diff` against the base), the open todos, the decisions made. The prior trail is authoritative input. Resist the bias to re-derive it.
-3. Diff done vs pending. Compare what shipped against what was planned, name the resume point, do not re-run the prior repro or redo completed work. A "let me verify from scratch" pass means you're treating the trail as untrustworthy when it's authoritative.
-4. Route the remaining work to the matching playbook and pick the verdict: continue the execution, ship a finished recommendation, ratify or override a prior conclusion, or postmortem a failed run. The pickup playbook ends here. The routed playbook owns the rest.
-5. Verify the inherited claims against the original goal on the real artifact (the **principle-prove-it-works** skill). A passing prior self-report is not the proof.
+1. 이전 추적을 찾습니다. 활성 작업공간의 `agent-transcripts/` 디렉토리 아래 로컬 대화록(시스템 프롬프트가 경로를 명명. `~/.cursor/projects/*/`를 넘어 glob하지 마세요. 그것은 작업공간 경계를 넘고 관련 없는 프로젝트의 개인 채팅을 읽습니다), cloud-agent URL, 또는 푸시된 브랜치. 메타데이터 개요와 마지막 메시지를 먼저 읽은 다음, 결정 지점을 위해 뒤로 스캔. 하위 에이전트에서 긴 대화록을 파싱하고 메인 스레드에 축소된 타임라인을 유지(**principle-guard-the-context-window** 스킬). 하위 에이전트 섹션에 따라 각 하위 에이전트의 추론 수준과 빠름 또는 표준 속도를 작업에 맞게 선택하세요.
+2. 운영 상태를 재구성. 브랜치와 워크트리, 이미 착륙한 것(`git log`, 베이스에 대한 `git diff`), 열린 todos, 내려진 결정. 이전 추적은 권위 있는 입력입니다. 그것을 재유도하려는 편향에 저항하세요.
+3. 완료 vs 대기 중을 차이냄. 계획된 것에 대해 출시된 것을 비교하고, 재개 지점을 명명하며, 이전 재현을 재실행하거나 완료된 작업을 재수행하지 마세요. "처음부터 검증하겠습니다" 패스는 추적이 권위 있을 때 신뢰할 수 없는 것으로 취급하고 있음을 의미합니다.
+4. 남은 작업을 일치하는 플레이북으로 라우팅하고 판정을 선택: 실행 계속, 완성된 추천 출시, 이전 결론 비준 또는 재정의, 또는 실패한 실행 사후 검토. 픽업 플레이북은 여기서 끝납니다. 라우팅된 플레이북이 나머지를 소유합니다.
+5. 실제 아티팩트에서 원래 목표에 대해 상속된 주장을 검증(**principle-prove-it-works** 스킬). 통과하는 이전 자기 보고는 증명이 아닙니다.
 
-**Reply:** where the prior agent stopped, what you inherited vs redid (ideally nothing redone), the resume point, and the outcome.
+**답변:** 이전 에이전트가 중단한 곳, 상속한 것 vs 재수행한 것(이상적으로는 재수행된 것 없음), 재개 지점, 결과.

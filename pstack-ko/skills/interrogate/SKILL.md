@@ -1,31 +1,31 @@
 ---
 name: interrogate
-description: "Use for \"interrogate\", \"adversarial review\", \"multi-model review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". Adversaries try to break a change or design, and only findings proven by a run survive."
+description: "\"interrogate\", \"adversarial review\", \"multi-model review\", \"challenge this\", \"stress test this code\", \"find blind spots\", 또는 \"tear this apart\"에 사용하세요. 적대자는 변경이나 설계를 깨뜨리려고 시도하며, 실행으로 증명된 발견 사항만 살아남습니다."
 disable-model-invocation: true
 ---
 
 # Interrogate
 
-Adversaries try to break a change or a design. A finding survives only when a run proves it. Report the findings. Do not apply fixes.
+적대자는 변경 또는 설계를 깨뜨리려고 시도합니다. 발견 사항은 실행이 증명할 때만 살아남습니다. 발견 사항을 보고하세요. 수정을 적용하지 마세요.
 
-## Frame
+## 프레임
 
-The scope is what the user names. Otherwise it is the branch diff from its merge base with the base branch, through the working tree. State the intent with the **in-your-own-words** skill, from the user's message, the commits, and the PR description. Ask the user when the intent is unclear.
+범위는 사용자가 명명하는 것입니다. 그렇지 않으면 기본 브랜치와의 병합 베이스에서 작업 트리를 통한 브랜치 diff입니다. 사용자의 메시지, 커밋 및 PR 설명에서 **in-your-own-words** 스킬로 의도를 진술하세요. 의도가 불명확할 때 사용자에게 물어보세요.
 
-## Fan out
+## 팬 아웃
 
-Run Phase A steps 3 and 4 and Phase B of the **arena** skill, with four changes. Read the `interrogate reviewers` line in place of `arena runners`. Copy the scope's uncommitted changes into each worktree. Spawn each adversary as `generalPurpose`. In place of the arena task and rationale, give each adversary the scope, the intent, and this brief:
+**arena** 스킬의 단계 A 단계 3과 4 및 단계 B를 실행하되, 네 가지 변경 사항이 있습니다. `arena runners` 대신 `interrogate reviewers` 라인을 읽으세요. 범위의 커밋되지 않은 변경 사항을 각 워크트리에 복사하세요. 각 적대자를 `generalPurpose`로 생성하세요. arena 작업 및 근거 대신 각 적대자에게 범위, 의도 및 이 브리프를 제공하세요:
 
-> Break this change. Prove each finding with a run against the real code, such as a failing test, a repro script, or command output that shows the wrong behavior. For a design or plan, run a prototype or probe the current tree. Keep repros in your own worktree. Report each finding with a title, the exact command, the output it printed, and the output the intent requires. Leave out anything you did not run. That covers style, naming, structure, and risks that need a future change to matter. No findings is a valid result.
+> 이 변경을 깨뜨리세요. 실패하는 테스트, 재현 스크립트 또는 잘못된 동작을 보여주는 명령 출력과 같이 실제 코드에 대한 실행으로 각 발견 사항을 증명하세요. 설계 또는 계획의 경우 프로토타입을 실행하거나 현재 트리를 조사하세요. 재현을 자신의 워크트리에 유지하세요. 제목, 정확한 명령, 출력한 출력 및 의도가 요구하는 출력과 함께 각 발견 사항을 보고하세요. 실행하지 않은 것은 모두 빼세요. 그것은 스타일, 명명, 구조, 그리고 중요해지려면 미래 변경이 필요한 위험을 커버합니다. 발견 사항이 없는 것은 유효한 결과입니다.
 
-## Verify
+## 검증
 
-Verify each finding per arena Phase F by rerunning its command. Keep a finding when the output shows the failure and the failure breaks the intent. Drop the rest. Merge findings that share a root cause.
+arena 단계 F에 따라 명령을 다시 실행하여 각 발견 사항을 검증하세요. 출력이 실패를 보여주고 실패가 의도를 위반할 때 발견 사항을 유지하세요. 나머지는 삭제하세요. 근본 원인을 공유하는 발견 사항을 병합하세요.
 
-Skip arena Phases C, D, and E. Adversaries find different failures, so the verdict keeps every verified finding, not one adversary's list.
+arena 단계 C, D 및 E는 건너뛰세요. 적대자는 다른 실패를 찾으므로 평결은 하나의 적대자의 목록이 아니라 모든 검증된 발견 사항을 유지합니다.
 
-## Output
+## 출력
 
-- **Intent**: the restatement.
-- **Findings**: for each verified finding, the command, its output, how it breaks the intent, and the adversaries that found it. Say "no verified findings" when none survive.
-- **Dropped**: for each adversary, the count of dropped findings and why.
+- **Intent (의도)**: 재진술.
+- **Findings (발견 사항)**: 각 검증된 발견 사항에 대해 명령, 출력, 의도를 어떻게 위반하는지, 그리고 그것을 찾은 적대자. 살아남은 것이 없을 때 "no verified findings"라고 말하세요.
+- **Dropped (삭제됨)**: 각 적대자에 대해 삭제된 발견 사항의 수와 이유.

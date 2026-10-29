@@ -1,14 +1,14 @@
-### Investigation
+### 조사
 
-**You own the answer. Plan, route, write.**
+**답을 당신이 소유합니다. 계획하고, 라우팅하고, 작성하세요.**
 
-Investigation requests are read-only. They produce a cited explanation or a recommendation, not a code change.
+조사 요청은 읽기 전용입니다. 코드 변경이 아니라 인용된 설명이나 추천을 생성합니다.
 
-1. Route through the **how** skill. For motivation questions, also route through the **why** skill.
-2. Throughput checkpoint stays one line: `throughput checkpoint: n/a, read-only investigation`.
-3. Produce the `how`-shaped output (Overview / Key Concepts / How It Works / Where Things Live / Gotchas), or a recommendation with a tradeoffs table if the request is a decision between alternatives.
-4. Apply the **unslop** skill to the reply.
+1. **how** 스킬을 통해 라우팅. 동기 질문의 경우, **why** 스킬도 통해 라우팅하세요.
+2. 처리량 체크포인트는 한 줄로 유지: `throughput checkpoint: n/a, read-only investigation`.
+3. `how` 형태의 출력(개요 / 주요 개념 / 작동 방식 / 사물의 위치 / 함정)을 생성하거나, 요청이 대안 간 결정이면 트레이드오프 테이블이 있는 추천을 생성.
+4. 답장에 **unslop** 스킬 적용.
 
-No PR, no babysit, no `architect` unless the investigation precedes a code change. If it does, hand back to the user and re-route to Bug fix or Feature.
+PR 없음, babysit 없음, 조사가 코드 변경 앞에 있지 않는 한 `architect` 없음. 있다면, 사용자에게 돌려주고 버그 수정 또는 피처로 재라우팅.
 
-**Reply:** the investigation output. For "are we sure?" answers, include your real judgment with reasons. Push back if the premise is wrong (see Autonomy).
+**답변:** 조사 출력. "확실한가?" 답변의 경우, 이유가 있는 당신의 진짜 판단을 포함. 전제가 틀렸으면 반박하세요(자율성 참조).

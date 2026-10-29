@@ -1,15 +1,15 @@
 ---
 name: principle-never-block-on-the-human
-description: "Apply when tempted to ask 'should I do X?' on reversible work."
+description: "되돌릴 수 있는 작업에 대해 'X를 해야 하나요?'라고 질문하고 싶을 때 적용."
 disable-model-invocation: true
 ---
 
-# Never Block on the Human
+# Never Block on the Human (인간에게 차단하지 마세요)
 
-The human supervises asynchronously. Agents must stay unblocked. Make reasonable decisions, proceed, and let the human course-correct after the fact. Since code changes are reversible and reviewable, a wrong decision usually costs less than blocking.
+인간은 비동기적으로 감독합니다. 에이전트는 차단되지 않은 상태로 유지되어야 합니다. 합리적인 결정을 내리고, 진행하고, 인간이 사후에 경로를 수정하도록 하세요. 코드 변경은 되돌릴 수 있고 검토 가능하므로, 잘못된 결정은 보통 차단보다 비용이 적습니다.
 
-- Proceed, then present. Do the work, show the result. Don't ask "should I do X?" Do X, explain why.
-- Make the system self-healing. When you notice a problem, log it and fix it in the next round.
-- Irreversible actions (force-push, delete production data, send external messages) still require confirmation.
-- Reversible actions (write code, edit notes, split tasks) should proceed without blocking.
-- Product direction comes from the human. Execution should not block.
+- 진행한 다음 제시하세요. 작업을 수행하고, 결과를 보여주세요. "X를 해야 하나요?"라고 묻지 마세요. X를 하고, 왜인지 설명하세요.
+- 시스템을 자가 치유하도록 만드세요. 문제를 발견하면, 로깅하고 다음 라운드에서 수정하세요.
+- 되돌릴 수 없는 행동(force-push, 프로덕션 데이터 삭제, 외부 메시지 전송)은 여전히 확인이 필요합니다.
+- 되돌릴 수 있는 행동(코드 작성, 노트 편집, 작업 분할)은 차단 없이 진행해야 합니다.
+- 제품 방향은 인간에게서 나옵니다. 실행은 차단되어서는 안 됩니다.

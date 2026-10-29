@@ -1,21 +1,21 @@
 ---
 name: principle-fix-root-causes
-description: "Apply when debugging. Trace each symptom back to the first place the system went wrong and fix it there. A guard is a fix only when the state it handles is legitimate."
+description: "디버깅할 때 적용. 각 증상을 시스템이 처음 잘못된 곳까지 추적하고 거기서 수정. 가드는 처리하는 상태가 합법적일 때만 수정."
 disable-model-invocation: true
 ---
 
-# Fix Root Causes
+# Fix Root Causes (근본 원인 수정)
 
-When debugging, fix the fault, not the place where it surfaced. The symptom is where a wrong state became visible. The root cause is the first place the system did something it should not do, or failed to handle a state it should handle.
+디버깅할 때, 표면화된 곳이 아니라 결함을 수정하세요. 증상은 잘못된 상태가 보이게 된 곳입니다. 근본 원인은 시스템이 해서는 안 되는 것을 처음 수행하거나 처리해야 하는 상태를 처리하지 못한 첫 번째 장소입니다.
 
-**Why:** A symptom fix hides the evidence and leaves the fault free to surface somewhere else. Each one makes the system harder to reason about, because the code now carries a workaround for a bug that nobody named.
+**이유:** 증상 수정은 증거를 숨기고 결함이 다른 곳에 표면화되도록 자유롭게 남깁니다. 각각은 시스템을 추론하기 더 어렵게 만드는데, 코드가 이제 아무도 명명하지 않은 버그에 대한 회피책을 전달하기 때문입니다.
 
-**Pattern:**
-- Reproduce first.
-- Ask "why" at each step until the answer is a wrong decision in the code, not a consequence of an earlier one.
-- When stuck, instrument. Read the actual error and the actual state. Do not guess.
-- Ask whether the state that triggered the symptom is legitimate. If the system may be in that state, the code that broke on it is the root cause, and handling the state there is the fix. If the state should never exist, a check where it broke hides the bug. Find what produced the state. Guards, retries, swallowed errors, clamped values, and discarded state are the usual ways to hide a bug.
-- When something fails only after a restart, suspect persisted state first: config files, caches, lock files, serialized state.
-- Check for the pattern, not just the instance. Find every place with the same fault and fix them all.
-- If a workaround needs a paragraph-long comment to justify it, the code is wrong. Fix the code, not the comment.
-- If the deciding fact took a deep dig to find, propose the cheap, always-on signal that would have shown it at first look.
+**패턴:**
+- 먼저 재현하세요.
+- 답이 더 이른 것의 결과가 아니라 코드의 잘못된 결정일 때까지 각 단계에서 "왜"를 질문하세요.
+- 막히면, 계측하세요. 실제 에러와 실제 상태를 읽으세요. 추측하지 마세요.
+- 증상을 트리거한 상태가 합법적인지 질문하세요. 시스템이 그 상태에 있을 수 있다면, 그것에 깨진 코드가 근본 원인이며, 거기서 상태를 처리하는 것이 수정입니다. 상태가 절대 존재해서는 안 된다면, 깨진 곳의 체크는 버그를 숨깁니다. 상태를 생산한 것을 찾으세요. 가드, 재시도, 삼켜진 에러, 고정된 값, 버려진 상태는 버그를 숨기는 일반적인 방법입니다.
+- 재시작 후에만 무언가가 실패하면, 먼저 지속된 상태를 의심하세요: 설정 파일, 캐시, 잠금 파일, 직렬화된 상태.
+- 인스턴스뿐만 아니라 패턴을 확인하세요. 동일한 결함이 있는 모든 곳을 찾고 모두 수정하세요.
+- 회피책이 정당화하기 위해 단락 길이의 주석이 필요하면, 코드가 잘못되었습니다. 주석이 아니라 코드를 수정하세요.
+- 결정 사실을 찾는 데 깊은 파기가 필요했다면, 첫 번째 보기에서 그것을 보여줄 저렴하고 항상 켜져 있는 신호를 제안하세요.

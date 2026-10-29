@@ -1,8 +1,8 @@
-### Autopilot-stack
+### 스택 자동 조종
 
-Run the Autopilot-full playbook, but do not merge.
+Autopilot-full 플레이북을 실행하되, 병합하지 마세요.
 
-1. **In place of step 5, stop at verified.** Stop when each PR is verified and green at its current head, then hand the PRs to the operator. After the handoff, nobody pushes without the operator's go. Every loop tick prompt names this file, so each tick sees the no-merge rule.
-2. **Stack a PR only when it builds on another PR.** This is the one exception to step 3. Base the PR on the other PR's branch in place of trunk, per **Size and stacks** in `playbooks/opening-a-pr.md`. In place of step 2's rebase onto trunk, each PR rebases onto its parent PR's branch, and the stack root rebases onto trunk. A new head on the lower PR restacks the PRs above it, and a PR whose `git patch-id` the restack leaves unchanged keeps its verdict.
+1. **5단계 대신, 검증됨에서 중단하세요.** 각 PR이 현재 head에서 검증되고 녹색일 때 중단한 다음, PR들을 운영자에게 넘기세요. 핸드오프 후, 운영자의 출발 없이 아무도 푸시하지 않습니다. 모든 루프 틱 프롬프트가 이 파일을 명명하므로, 각 틱은 병합 금지 규칙을 봅니다.
+2. **PR을 다른 PR 위에 빌드할 때만 스택하세요.** 이것이 3단계에 대한 유일한 예외입니다. `playbooks/opening-a-pr.md`의 **Size and stacks**에 따라 trunk 대신 다른 PR의 브랜치에 PR을 베이스하세요. 2단계의 trunk에 리베이스 대신, 각 PR은 부모 PR의 브랜치에 리베이스하고, 스택 루트는 trunk에 리베이스합니다. 하위 PR의 새 head는 그 위의 PR들을 restack하고, restack이 변경 없이 남긴 `git patch-id`를 가진 PR은 판정을 유지합니다.
 
-**Reply:** list each PR with its verdict, in place of what merged.
+**답변:** 병합된 것 대신, 각 PR을 판정과 함께 나열하세요.

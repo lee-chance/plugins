@@ -1,44 +1,44 @@
 ---
 name: create-verification-skill
-description: "Generate a project-local verification skill that drives your app the way a user does — any language, framework, or platform. Use for /create-verification-skill, \"make a control skill for this repo\", or when a project has no scripted way to prove UI/CLI/service behavior."
+description: "사용자가 하는 방식으로 앱을 구동하는 프로젝트 로컬 검증 스킬을 생성하세요 — 어떤 언어, 프레임워크 또는 플랫폼이든. /create-verification-skill, \"make a control skill for this repo\", 또는 프로젝트에 UI/CLI/서비스 동작을 증명하는 스크립트 방법이 없을 때 사용하세요."
 disable-model-invocation: true
 ---
 
 # Create a verification skill
 
-Every serious project needs a scripted way to drive the real app and prove behavior: launch it, exercise a feature the way a user would, and capture evidence. This skill generates that as a project-local skill (`.cursor/skills/verify-<app>/`) tailored to the repo. You write the generator's output for the next agent, not for a human: it will be read cold, mid-task, by an agent that has never seen the app.
+모든 진지한 프로젝트는 실제 앱을 구동하고 동작을 증명하는 스크립트 방법이 필요합니다: 앱을 시작하고, 사용자가 하는 방식으로 기능을 실행하고, 증거를 캡처합니다. 이 스킬은 저장소에 맞춤화된 프로젝트 로컬 스킬 (`.cursor/skills/verify-<app>/`)로 그것을 생성합니다. 당신은 인간이 아니라 다음 에이전트를 위해 생성기의 출력을 작성합니다: 앱을 본 적이 없는 에이전트가 작업 중에 차갑게 읽을 것입니다.
 
-## 1. Interview the repo, not the user
+## 1. 사용자가 아니라 저장소를 인터뷰
 
-Answer these from the codebase and only ask the user what you cannot observe:
+코드베이스에서 이것들에 답하고 관찰할 수 없는 것만 사용자에게 물어보세요:
 
-- **Surface:** what does a user actually touch? A web UI, a CLI/TUI, a desktop app, an API, a mobile app, a library? A repo can have several; pick the primary one and note the rest.
-- **Run:** how does the app start locally? Prefer the repo's own documented dev command (package scripts, Makefile, README quickstart). Note ports, env vars, seed data, auth.
-- **Drive:** how can an agent interact with it programmatically? Existing harnesses first — Playwright/Cypress specs, expect scripts, PTY helpers, curl-able endpoints, a debug port. Only then pick a generic recipe: browser/CDP for web and Electron, a tmux/PTY harness for CLI/TUI, plain HTTP for services.
-- **Observe:** what evidence can be captured? Screenshots, terminal transcripts, response bodies, logs, exit codes, DB state.
-- **Isolate:** can two instances run side by side (ports, data dirs, profiles)? If not, say so in the generated skill: refusing to double-drive a shared instance beats corrupting the user's session.
+- **Surface (표면):** 사용자가 실제로 무엇을 터치하나요? 웹 UI, CLI/TUI, 데스크톱 앱, API, 모바일 앱, 라이브러리? 저장소는 여러 개를 가질 수 있습니다; 주요 것을 선택하고 나머지를 기록하세요.
+- **Run (실행):** 앱이 로컬에서 어떻게 시작되나요? 저장소 자체의 문서화된 개발 명령 (패키지 스크립트, Makefile, README 퀵스타트)을 선호하세요. 포트, 환경 변수, 시드 데이터, 인증을 기록하세요.
+- **Drive (구동):** 에이전트가 프로그래밍 방식으로 어떻게 상호 작용할 수 있나요? 먼저 기존 하니스 — Playwright/Cypress 스펙, expect 스크립트, PTY 헬퍼, curl 가능한 엔드포인트, 디버그 포트. 그런 다음에만 일반 레시피를 선택하세요: 웹 및 Electron용 브라우저/CDP, CLI/TUI용 tmux/PTY 하니스, 서비스용 평범한 HTTP.
+- **Observe (관찰):** 어떤 증거를 캡처할 수 있나요? 스크린샷, 터미널 트랜스크립트, 응답 본문, 로그, 종료 코드, DB 상태.
+- **Isolate (격리):** 두 인스턴스가 나란히 실행될 수 있나요 (포트, 데이터 디렉토리, 프로필)? 그렇지 않다면 생성된 스킬에서 그렇게 말하세요: 공유 인스턴스를 이중으로 구동하는 것을 거부하는 것이 사용자의 세션을 손상시키는 것보다 낫습니다.
 
-If the checkout doesn't build or start as-is, fix that first (or report it precisely) before generating; a skill written against a broken base teaches wrong steps. When an irrelevant missing asset blocks startup (a static dir the API never serves, a sample config), the generated skill may create it, clearly marked as verification scaffolding, and remove it in cleanup.
+체크아웃이 그대로 빌드되거나 시작되지 않으면 생성하기 전에 먼저 그것을 수정하세요 (또는 정확하게 보고하세요); 깨진 베이스에 대해 작성된 스킬은 잘못된 단계를 가르칩니다. 관련 없는 누락된 에셋이 시작을 차단할 때 (API가 제공하지 않는 정적 디렉토리, 샘플 구성), 생성된 스킬은 검증 스캐폴딩으로 명확하게 표시하여 그것을 생성하고 정리 시 제거할 수 있습니다.
 
-## 2. Generate the skill
+## 2. 스킬 생성
 
-Write `.cursor/skills/verify-<app>/SKILL.md` with YAML frontmatter (`name: verify-<app>` and a `description` that names the app, the surface, and when to reach for it — without frontmatter the skill never registers) and these sections, each grounded in what the interview actually found (no placeholders left):
+YAML 프론트매터 (`name: verify-<app>` 및 앱, 표면, 언제 도달할지를 명명하는 `description` — 프론트매터가 없으면 스킬이 등록되지 않음)와 이러한 섹션으로 `.cursor/skills/verify-<app>/SKILL.md`를 작성하세요. 각 섹션은 인터뷰가 실제로 발견한 것에 기반합니다 (자리 표시자가 남지 않음):
 
-- **Launch:** the exact command that starts the app for verification, and how to tell it's ready (a log line, a prompt). Launch must reach a usable state from an empty data dir, including any migrations and seed data. Ready means usable, not just that a process answers. A database health check can pass while its init scripts are still running. Include teardown. For a short-lived CLI or TUI there is no server to keep alive: launch means build the binary (or install deps) once, then start each drive in its own isolated PTY or tmux session.
-- **Doctor:** one read-only check that answers "is this instance worth driving?" — process up, right version/build, port owned by us, auth valid. An agent runs this first whenever anything looks off.
-- **Drive:** the harness recipe with real selectors/commands from this repo, not examples. Prefer stable handles (ARIA labels, data attributes, prompt strings, route paths) over coordinates and tab order.
-- **Evidence:** what to capture for a proof and where it goes. State the proof standards: exercise the real user path, not internal setters or test-only endpoints; capture the action and the resulting state, not just the final screen; verify side effects (files written, rows inserted, messages sent) alongside what's visible; mocks only where a production boundary already isolates the external system. When the safe path is a dry-run or test mode, verify what it actually skips by observing (files, network, git refs) rather than trusting its name: some dry-runs still touch the network or open a browser.
-- **Cleanup:** how to tear down instances the run created. Never kill by process name; kill what you started. Cleanup removes instances and scratch state, never the evidence: proof artifacts survive the teardown, in a location the skill names.
-- **Helpers:** any script the skill ships is executable and its invocation is shown in the skill body. A helper the reader has to reverse-engineer is not a helper.
+- **Launch (시작):** 검증을 위해 앱을 시작하는 정확한 명령과 준비되었는지 어떻게 알 수 있는지 (로그 라인, 프롬프트). Launch는 마이그레이션과 시드 데이터를 포함하여 빈 데이터 디렉토리에서 사용 가능한 상태에 도달해야 합니다. Ready는 단지 프로세스가 응답하는 것이 아니라 사용 가능함을 의미합니다. 데이터베이스 헬스 체크는 초기화 스크립트가 아직 실행 중일 때 통과할 수 있습니다. 분해를 포함하세요. 수명이 짧은 CLI 또는 TUI의 경우 유지할 서버가 없습니다: launch는 바이너리를 한 번 빌드하고 (또는 종속성 설치), 그런 다음 각 drive를 자체 격리된 PTY 또는 tmux 세션에서 시작하는 것을 의미합니다.
+- **Doctor:** "이 인스턴스는 구동할 가치가 있는가?"에 답하는 하나의 읽기 전용 검사 — 프로세스 작동, 올바른 버전/빌드, 우리가 소유한 포트, 유효한 인증. 에이전트는 무언가가 이상해 보일 때마다 이것을 먼저 실행합니다.
+- **Drive (구동):** 예제가 아니라 이 저장소의 실제 선택자/명령이 있는 하니스 레시피. 좌표 및 탭 순서보다 안정적인 핸들 (ARIA 레이블, 데이터 속성, 프롬프트 문자열, 경로 경로)을 선호하세요.
+- **Evidence (증거):** 증거를 위해 무엇을 캡처하고 어디로 가는지. 증명 표준을 명시하세요: 내부 세터 또는 테스트 전용 엔드포인트가 아니라 실제 사용자 경로를 실행합니다; 최종 화면만이 아니라 액션과 결과 상태를 캡처합니다; 보이는 것 옆에 부작용 (작성된 파일, 삽입된 행, 전송된 메시지)을 검증합니다; 프로덕션 경계가 이미 외부 시스템을 격리하는 곳에서만 목. 안전한 경로가 드라이 런 또는 테스트 모드일 때, 이름을 신뢰하기보다는 관찰 (파일, 네트워크, git 참조)하여 실제로 건너뛰는 것을 검증하세요: 일부 드라이 런은 여전히 네트워크를 터치하거나 브라우저를 엽니다.
+- **Cleanup (정리):** 실행이 생성한 인스턴스를 분해하는 방법. 프로세스 이름으로 절대 죽이지 마세요; 시작한 것을 죽이세요. Cleanup은 증거를 제거하지 않고 인스턴스와 스크래치 상태를 제거합니다: 증명 아티팩트는 스킬이 명명한 위치에서 분해 후에도 살아남습니다.
+- **Helpers:** 스킬이 배송하는 모든 스크립트는 실행 가능하며 그 호출이 스킬 본문에 표시됩니다. 독자가 역공학해야 하는 헬퍼는 헬퍼가 아닙니다.
 
-## 3. Seed the feature map
+## 3. 기능 맵 시드
 
-Create `.cursor/skills/verify-<app>/features/README.md` plus one file per user-facing feature you can identify (aim for the top 3-5 to start, from routes, commands, menus, or docs). Follow the shape in [`references/feature-map-example/`](references/feature-map-example/), with a README index and one file per feature. Each file answers, from the user's point of view: what the feature is, how to reach it, how to drive it with the harness, and what observable end state proves it works. The four H2s are `Sub-features`, `How to get to it (user POV)`, `Driving it with <harness>`, and `Gotchas`. If the seed data lacks a precondition that a journey needs, the journey reports a failure and the reason goes in that feature's `Gotchas`. Never weaken the journey to make it pass. The map is the repo's maintained verification source; a proof that drives one convenient entry point is incomplete when the map lists others.
+`.cursor/skills/verify-<app>/features/README.md`와 식별할 수 있는 사용자 대면 기능당 하나의 파일을 생성하세요 (시작하려면 상위 3-5개를 목표로, 경로, 명령, 메뉴 또는 문서에서). [`references/feature-map-example/`](references/feature-map-example/)의 형태를 따르세요. README 인덱스와 기능당 하나의 파일. 각 파일은 사용자의 관점에서 답합니다: 기능이 무엇인지, 어떻게 도달하는지, 하니스로 어떻게 구동하는지, 어떤 관찰 가능한 최종 상태가 작동함을 증명하는지. 네 개의 H2는 `Sub-features`, `How to get to it (user POV)`, `Driving it with <harness>`, 그리고 `Gotchas`입니다. 시드 데이터가 여정이 필요로 하는 전제 조건이 부족하면 여정은 실패를 보고하고 이유는 해당 기능의 `Gotchas`로 갑니다. 통과하도록 여정을 약화시키지 마세요. 맵은 저장소의 유지 관리되는 검증 소스입니다; 하나의 편리한 진입점을 구동하는 증명은 맵이 다른 것을 나열할 때 불완전합니다.
 
-## 4. Prove the generated skill before handing it over
+## 4. 넘기기 전에 생성된 스킬 증명
 
-Run its own instructions end to end once: launch, doctor, drive ONE mapped feature (one is enough; the map exists so later runs can cover the rest), capture evidence, clean up. After cleanup, confirm the evidence still exists at the named location — a cleanup that eats the proof fails this step. Fix what fails, and run the generated cleanup after every failed iteration too, so broken attempts don't strand processes and ports. A generated skill that was never executed is a draft, not a deliverable. If you proved it in a stand-in for the real target (a container in place of a fresh VM, a local stack in place of a remote one), list every setup step the stand-in did that the target will not. Those steps stay unverified until a run on the real target covers them.
+자체 지침을 한 번 처음부터 끝까지 실행하세요: 시작, doctor, 하나의 매핑된 기능 구동 (하나면 충분합니다; 맵은 나중 실행이 나머지를 커버할 수 있도록 존재합니다), 증거 캡처, 정리. 정리 후, 증거가 여전히 명명된 위치에 존재하는지 확인하세요 — 증명을 먹는 정리는 이 단계에 실패합니다. 실패하는 것을 수정하고, 깨진 시도가 프로세스와 포트를 좌초시키지 않도록 모든 실패한 반복 후에도 생성된 정리를 실행하세요. 실행된 적이 없는 생성된 스킬은 초안이지 제공물이 아닙니다. 실제 대상 대신 대리자에서 증명했다면 (원격 대신 로컬 스택, 새 VM 대신 컨테이너), 대상이 하지 않을 대리자가 수행한 모든 설정 단계를 나열하세요. 해당 단계는 실제 대상에서 실행이 그것들을 커버할 때까지 검증되지 않은 상태로 남습니다.
 
-## 5. Offer the maintenance loop
+## 5. 유지보수 루프 제공
 
-Point the user at `/maintain-verification-skill` for keeping the map honest as the app changes. Suggest a cadence only if they ask.
+앱이 변경됨에 따라 맵을 정직하게 유지하기 위해 `/maintain-verification-skill`을 사용자에게 가리키세요. 그들이 물어볼 때만 주기를 제안하세요.

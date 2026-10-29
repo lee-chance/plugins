@@ -1,18 +1,18 @@
 ---
 name: principle-explain-the-number
-description: "Apply before you measure, and before you trust, report, or act on a number you measured: a speedup, a regression, a throughput, a latency, or an eval result. Find what limits it, and rule out that it measured something other than the work you think."
+description: "측정하기 전에, 그리고 측정한 숫자를 신뢰, 보고 또는 조치하기 전에 적용: 속도 향상, 회귀, 처리량, 지연 시간 또는 eval 결과. 그것을 제한하는 것을 찾고, 생각하는 작업이 아닌 다른 것을 측정했다는 것을 배제."
 disable-model-invocation: true
 ---
 
-# Explain the Number
+# Explain the Number (숫자 설명)
 
-- **Write the decision before you run.** Name the result that would change a decision, and the noise floor. Stop when the run-to-run spread is larger than the effect.
-- **Ask "why not double?"** Name the resource or code path that bounds the result, such as a core, a lock, the disk, the network, or the load generator itself. Get it from a profile or from system counters taken during a run, then map it to source. A guess from reading the code is not a limiter. If you cannot say why the number is not twice as good, you do not know what you measured.
-- **List what else the number could be measuring, and rule out each one with evidence.** The usual suspects are errors, skipped or cached work, code that never ran, an untuned side (one left on default settings), noise, and a piece too small to matter end to end.
-- **Keep the evidence with the number.** Put the run count, the spread, and the limiter in the notes or a linked artifact.
+- **실행하기 전에 결정을 작성하세요.** 결정을 변경할 결과와 노이즈 플로어를 명명하세요. 실행 간 스프레드가 효과보다 클 때 멈추세요.
+- **"왜 두 배가 아닌가?"라고 질문하세요.** 코어, 잠금, 디스크, 네트워크 또는 로드 생성기 자체와 같은 결과를 제한하는 리소스 또는 코드 경로를 명명하세요. 실행 중에 취한 프로파일 또는 시스템 카운터에서 가져온 다음, 소스에 매핑하세요. 코드를 읽는 것에서의 추측은 제한 요소가 아닙니다. 숫자가 왜 두 배로 좋지 않은지 말할 수 없다면, 무엇을 측정했는지 모릅니다.
+- **숫자가 측정할 수 있는 다른 것을 나열하고, 증거로 각각을 배제하세요.** 일반적인 용의자는 에러, 건너뛴 또는 캐시된 작업, 절대 실행되지 않은 코드, 튜닝되지 않은 측면(기본 설정에 남겨진 것), 노이즈, 엔드투엔드로 중요하지 않을 정도로 작은 조각입니다.
+- **숫자와 함께 증거를 유지하세요.** 실행 횟수, 스프레드, 제한 요소를 노트 또는 링크된 아티팩트에 넣으세요.
 
-For a performance number, run the full procedure with the [benchmark-checklist](../benchmark-checklist/SKILL.md) skill. For an eval result, ask the same of the trials: did every run do the task, does the gap hold across trials and models, and does the scenario matter.
+성능 숫자의 경우, [benchmark-checklist](../benchmark-checklist/SKILL.md) 스킬로 전체 절차를 실행하세요. eval 결과의 경우, 시도에 대해 동일하게 질문하세요: 모든 실행이 작업을 수행했는지, 간격이 시도와 모델에 걸쳐 유지되는지, 시나리오가 중요한지.
 
-You skipped this when a run started without the result that would change a decision, when the evidence behind a number has no run count, no spread, or no named limiter, or when the time saved is larger than the time the changed piece took.
+결정을 변경할 결과 없이 실행이 시작되었을 때, 숫자 뒤의 증거에 실행 횟수, 스프레드 또는 명명된 제한 요소가 없을 때, 또는 절약된 시간이 변경된 조각이 걸린 시간보다 클 때 이것을 건너뛰었습니다.
 
-Distinct from [Prove It Works](../principle-prove-it-works/SKILL.md), which checks that an output is real.
+출력이 실제임을 확인하는 [Prove It Works](../principle-prove-it-works/SKILL.md)와 구별됩니다.

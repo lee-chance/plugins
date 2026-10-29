@@ -1,7 +1,7 @@
 ---
 name: bro
-description: Restate the last message in plain human language, with no jargon.
+description: 마지막 메시지를 전문 용어 없이 평범한 인간 언어로 다시 진술하세요.
 disable-model-invocation: true
 ---
 
-Restate your last message. Stop using jargon and speak coherently. State it more simply and concisely, like one human talking to another.
+마지막 메시지를 다시 진술하세요. 전문 용어 사용을 중단하고 일관되게 말하세요. 한 인간이 다른 인간에게 말하는 것처럼 더 간단하고 간결하게 진술하세요.

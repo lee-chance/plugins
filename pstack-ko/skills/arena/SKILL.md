@@ -1,48 +1,48 @@
 ---
 name: arena
-description: "Spawn N parallel candidates at the same task, pick a base, graft the strongest parts of the losers into it. Use for /arena, 'arena this', 'throw it in the arena', or when one attempt at a non-trivial artifact would lock in the wrong shape."
+description: "동일한 작업에 N개의 병렬 후보를 생성하고, 베이스를 선택하고, 패자의 가장 강한 부분을 그것에 접목하세요. /arena, 'arena this', 'throw it in the arena'에 사용하거나, 비자명한 아티팩트에 대한 한 번의 시도가 잘못된 형태로 고착될 때 사용하세요."
 disable-model-invocation: true
 ---
 
 # Arena
 
-Open a todolist with one entry per phase (Frame, Fan out, Cross-judge, Pick, Graft, Verify) before launching anything.
+어떤 것도 시작하기 전에 각 단계마다 하나의 항목이 있는 투두리스트를 여세요 (Frame, Fan out, Cross-judge, Pick, Graft, Verify).
 
-## Phase A: Frame
+## 단계 A: 프레이밍
 
-Every candidate gets the same prompt, so the prompt is the contract.
+모든 후보가 동일한 프롬프트를 받으므로 프롬프트가 계약입니다.
 
-1. State the artifact each candidate is producing.
-2. Derive the rubric, 3-6 concrete gradeable criteria for what success looks like on *this* task. It is the picker's tool in Phase D. Candidates only see the task.
-3. Pick the runners. Use the `arena runners` line in `~/.cursor/rules/pstack-models.mdc`. If the rule or that line is missing, default to one each on `claude-opus-5-5-xhigh` and `grok-4.7-xhigh-fast`. An `auto` or `inherit-parent` entry in this line means the parent model, so omit `model` for it. If the Task tool rejects a configured entry, run that seat on its family's default and say so. Families go by prefix: `claude-*`, and `grok-*` with `cursor-grok-*` and `composer-*`. A refused `composer-*` entry runs on `grok-4.7-xhigh-fast`. If the family has no default, or the Task tool rejects that default, use the closest valid slug of the same family from its error message, or drop the seat and say so when there is none. If dropped seats leave fewer than two runners, add runners until there are two, or one when the line has one entry. Run each added runner on a remaining runner's model, or omit `model` so it runs on the parent model when none remain, and say so. Spawn more runners when the arena covers multiple design directions. Use the same model N times when the work is generation-bound rather than judgment-sensitive. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the **poteto-mode** skill.
-4. Give each candidate its own output location (a git worktree where possible, otherwise `/tmp/arena-<slug>/candidate-<n>/`), per the **separate-before-serializing-shared-state** principle skill.
+1. 각 후보가 생산하는 아티팩트를 명시하세요.
+2. 루브릭을 도출하세요. *이* 작업에서 성공이 어떻게 보이는지에 대한 3-6개의 구체적이고 채점 가능한 기준. 이것은 단계 D에서 선택자의 도구입니다. 후보는 작업만 봅니다.
+3. 러너를 선택하세요. `~/.cursor/rules/pstack-models.mdc`의 `arena runners` 라인을 사용하세요. 규칙이나 해당 라인이 없으면 `claude-opus-5-5-xhigh`와 `grok-4.7-xhigh-fast` 각각 하나씩 기본값으로 사용하세요. 이 라인의 `auto` 또는 `inherit-parent` 항목은 부모 모델을 의미하므로 `model`을 생략하세요. Task 도구가 구성된 항목을 거부하면 해당 시트를 해당 패밀리의 기본값으로 실행하고 그렇게 말하세요. 패밀리는 접두사로 구분됩니다: `claude-*`, 그리고 `cursor-grok-*` 및 `composer-*`와 함께 `grok-*`. 거부된 `composer-*` 항목은 `grok-4.7-xhigh-fast`에서 실행됩니다. 패밀리에 기본값이 없거나 Task 도구가 해당 기본값을 거부하면 오류 메시지에서 동일한 패밀리의 가장 가까운 유효한 슬러그를 사용하거나, 없으면 시트를 삭제하고 그렇게 말하세요. 삭제된 시트가 러너를 2개 미만으로 남기면, 2개가 될 때까지 러너를 추가하거나, 라인에 하나의 항목이 있으면 하나를 추가하세요. 추가된 각 러너를 남은 러너의 모델로 실행하거나, 남은 것이 없으면 부모 모델로 실행되도록 `model`을 생략하고 그렇게 말하세요. arena가 여러 설계 방향을 다룰 때 더 많은 러너를 생성하세요. 작업이 판단에 민감하기보다는 생성에 바인딩되어 있을 때 동일한 모델을 N번 사용하세요. **poteto-mode** 스킬의 Subagents 섹션에 따라 작업에 대한 각 서브에이전트의 추론 수준과 빠른 또는 표준 속도를 선택하세요.
+4. 각 후보에게 자체 출력 위치를 제공하세요 (가능하면 git 워크트리, 그렇지 않으면 `/tmp/arena-<slug>/candidate-<n>/`), **separate-before-serializing-shared-state** 원칙 스킬에 따라.
 
-## Phase B: Fan out
+## 단계 B: 팬 아웃
 
-Spawn all N subagents in one message with `run_in_background: true`, each with the task, the path to the shared grounding, its own output path, and instructions to produce the artifact and a short rationale naming the alternatives it considered and what it rejected.
+`run_in_background: true`로 하나의 메시지에서 모든 N개의 서브에이전트를 생성하세요. 각각에 작업, 공유 기반 경로, 자체 출력 경로, 그리고 아티팩트와 고려한 대안과 거부한 것을 명명하는 짧은 근거를 생성하라는 지침을 제공하세요.
 
-If a candidate produces no output, proceed with N-1 and note the dropout.
+후보가 출력을 생성하지 않으면 N-1로 진행하고 탈락을 기록하세요.
 
-## Phase C: Cross-judge
+## 단계 C: 교차 판정
 
-After all Phase B candidates complete, choose one model from the `arena cross-judge pool` line in `~/.cursor/rules/pstack-models.mdc`. If the rule or that line is missing, choose from `claude-opus-5-5-xhigh` and `grok-4.7-xhigh-fast`. Spawn one readonly judge subagent. The judge is never from the parent's family, as Phase A step 3 defines families. Try only the entries from another family, in pool order. An `auto` or `inherit-parent` entry is the parent model, so it never judges. With the default pool, a Claude parent gets `grok-4.7-xhigh-fast`. A parent from any other family gets `claude-opus-5-5-xhigh` first. If the Task tool rejects an entry, use a valid slug of the same model at the closest level or speed from the error message, or move to the next entry when there is none. If no entry from another family runs, try the default pool's entries from another family the same way. If none of those runs, skip the judge, pick the base alone in Phase D, and say so. If you do not know the parent's model, try the pool's real slugs in pool order and say that the family check did not run. The judge sees the rubric and the candidates by path label, scores each criterion, and recommends a base with rationale. It runs in parallel with your reading in Phase D. Don't spawn it while candidates are still writing.
+모든 단계 B 후보가 완료된 후, `~/.cursor/rules/pstack-models.mdc`의 `arena cross-judge pool` 라인에서 하나의 모델을 선택하세요. 규칙이나 해당 라인이 없으면 `claude-opus-5-5-xhigh`와 `grok-4.7-xhigh-fast` 중에서 선택하세요. 하나의 읽기 전용 판정자 서브에이전트를 생성하세요. 판정자는 단계 A 단계 3에서 정의한 대로 부모의 패밀리에서 절대 나오지 않습니다. 다른 패밀리의 항목만 풀 순서대로 시도하세요. `auto` 또는 `inherit-parent` 항목은 부모 모델이므로 절대 판정하지 않습니다. 기본 풀을 사용하면 Claude 부모는 `grok-4.7-xhigh-fast`를 얻습니다. 다른 패밀리의 부모는 먼저 `claude-opus-5-5-xhigh`를 얻습니다. Task 도구가 항목을 거부하면 오류 메시지에서 가장 가까운 수준 또는 속도의 동일한 모델의 유효한 슬러그를 사용하거나, 없으면 다음 항목으로 이동하세요. 다른 패밀리의 항목이 실행되지 않으면 동일한 방식으로 기본 풀의 다른 패밾리 항목을 시도하세요. 그 중 어느 것도 실행되지 않으면 판정자를 건너뛰고 단계 D에서 베이스만 선택하고 그렇게 말하세요. 부모의 모델을 모르면 풀의 실제 슬러그를 풀 순서대로 시도하고 패밀리 확인이 실행되지 않았다고 말하세요. 판정자는 루브릭과 경로 레이블별 후보를 보고, 각 기준을 채점하고, 근거와 함께 베이스를 추천합니다. 단계 D에서 읽기와 병렬로 실행됩니다. 후보가 아직 쓰고 있는 동안에는 생성하지 마세요.
 
-## Phase D: Pick a base
+## 단계 D: 베이스 선택
 
-Read every candidate end to end before picking. Score each against the rubric criterion by criterion, not on holistic feel, and compare with the cross-judge when Phase C ran one. Agreement on the base confirms the pick. Disagreement means one of you is biased or the rubric was ambiguous. Read both rationales before deciding.
+선택하기 전에 모든 후보를 처음부터 끝까지 읽으세요. 전체적인 느낌이 아니라 루브릭 기준별로 각각을 채점하고, 단계 C가 실행되었을 때 교차 판정자와 비교하세요. 베이스에 대한 합의는 선택을 확인합니다. 불일치는 당신 중 한 명이 편향되어 있거나 루브릭이 모호했다는 의미입니다. 결정하기 전에 두 근거를 모두 읽으세요.
 
-Pick the base a future maintainer can extend most easily without breaking invariants. When two feel tied, prefer the cleaner boundary or smaller API, per the Laziness Protocol.
+미래의 유지 관리자가 불변성을 깨지 않고 가장 쉽게 확장할 수 있는 베이스를 선택하세요. 두 개가 동점으로 느껴지면 Laziness Protocol에 따라 더 깔끔한 경계 또는 더 작은 API를 선호하세요.
 
-## Phase E: Graft
+## 단계 E: 접목
 
-Walk each losing candidate once more for what is worth porting into the base, usually one or two things per candidate, not most of it. Fold each graft in by hand, per the **redesign-from-first-principles** principle skill, so the result stays coherent under one mental model. Don't paste mechanically.
+각 패자 후보를 한 번 더 살펴보고 베이스에 이식할 가치가 있는 것을 찾으세요. 일반적으로 후보당 한두 가지이며 대부분이 아닙니다. 결과가 하나의 정신 모델 아래 일관성을 유지하도록 **redesign-from-first-principles** 원칙 스킬에 따라 각 접목을 손으로 접으세요. 기계적으로 붙여넣지 마세요.
 
-If the candidates converge on one shape, that is strong agreement. Note it and ship the consensus shape. No graft is needed. If they wildly diverge, Phase A was under-specified. Reframe and re-run rather than averaging the divergence.
+후보가 하나의 형태로 수렴하면 그것은 강한 합의입니다. 그것을 기록하고 합의 형태를 배송하세요. 접목이 필요하지 않습니다. 후보가 크게 분기하면 단계 A가 과소 지정되었습니다. 분산을 평균화하기보다는 재프레이밍하고 다시 실행하세요.
 
-## Phase F: Verify
+## 단계 F: 검증
 
-Verify the synthesized artifact like any other output, per the **prove-it-works** principle skill. If verification finds a problem the arena missed, either Phase A was wrong (re-frame and re-run) or a candidate caught it and you missed the graft (go back to Phase E). Don't paper over it.
+**prove-it-works** 원칙 스킬에 따라 다른 출력처럼 합성된 아티팩트를 검증하세요. 검증이 arena가 놓친 문제를 발견하면 단계 A가 틀렸거나 (재프레이밍하고 다시 실행) 후보가 그것을 잡았고 당신이 접목을 놓쳤습니다 (단계 E로 돌아가기). 문서로 덮지 마세요.
 
-## Outputs
+## 출력
 
-One synthesized artifact, with a short synthesis note alongside naming the base and why, the cross-judge's verdict or that Phase C skipped the judge, each graft with its source candidate, what was rejected and why, any convergence or dropouts, and the verification result.
+하나의 합성된 아티팩트와 함께 베이스와 이유, 교차 판정자의 평결 또는 단계 C가 판정자를 건너뛰었다는 것, 소스 후보와 함께 각 접목, 거부된 것과 이유, 수렴 또는 탈락, 검증 결과를 명명하는 짧은 합성 노트.

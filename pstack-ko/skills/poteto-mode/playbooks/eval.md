@@ -1,25 +1,25 @@
 ### Eval
 
-**You own the experiment design. Plan, blind, run, synthesize.**
+**실험 설계를 당신이 소유합니다. 계획하고, 블라인드하고, 실행하고, 종합하세요.**
 
-**Non-negotiables for blinding:**
+**블라인딩을 위한 협상 불가 원칙:**
 
-- No `eval`, `test`, `judge`, `experiment`, `rubric`, `score`, `compare`, `benchmark`, `candidate`, or `arena` in any directory, file, or prompt the candidate sees.
-- The candidate prompt looks like an organic user request. State the goal, not the meta.
-- No chain-eliciting cues. Don't ask the candidate to list which skills, principles, or files they applied. Ask for design notes generally and grade chain-following from code shape, not self-report.
-- Sanitize directory and slug names. Use project-shaped names a user might pick.
-- Don't tell the candidate other candidates exist.
-- The judge can know it's judging but sees outputs by sanitized label only, never by model name.
-- Comparing two variants: one judge scores both sets in a single pass on one scale, blind to which set each came from.
+- 후보가 보는 어떤 디렉토리, 파일, 또는 프롬프트에도 `eval`, `test`, `judge`, `experiment`, `rubric`, `score`, `compare`, `benchmark`, `candidate`, 또는 `arena` 없음.
+- 후보 프롬프트는 유기적인 사용자 요청처럼 보입니다. 메타가 아니라 목표를 진술.
+- 체인 유도 단서 없음. 후보에게 적용한 스킬, 원칙, 또는 파일을 나열하라고 묻지 마세요. 설계 노트를 일반적으로 요청하고 자기 보고가 아니라 코드 형태로부터 체인 추종을 등급화.
+- 디렉토리와 슬러그 이름 위생처리. 사용자가 선택할 법한 프로젝트 형태 이름 사용.
+- 후보에게 다른 후보가 존재한다고 말하지 마세요.
+- 심사위원은 심사 중임을 알 수 있지만 위생처리된 라벨로만 출력을 보며, 절대 모델 이름으로 보지 않습니다.
+- 두 변형 비교: 한 심사위원이 하나의 스케일로 단일 패스에서 양쪽 세트를 점수화하며, 각각이 어느 세트에서 왔는지 블라인드.
 
-**Steps:**
+**단계:**
 
-1. **Frame.** State what variant is under test and what behavior counts as success. Write the rubric (3-6 concrete criteria) for the judge only. Hold it back from candidates.
-2. **Set up sanitized environments.** Per-candidate working dir with the variant in place. Plant any context an organic task would have: a project skeleton, the skills the candidate would naturally read.
-3. **Author one organic prompt.** What a user would type. No leakage of what's being measured.
-4. **Spawn N parallel candidates** on different models per the **arena** skill's Phase B. Each works in its own sanitized dir. Same prompt to each. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section.
-5. **Spawn one blinded judge** on a different model family per the **arena** skill's Phase C. Judge sees outputs by sanitized label and the rubric, never a model name.
-6. **Verify the chain from transcripts, not self-report.** Read each candidate's local transcript under the active workspace's `agent-transcripts/` directory (the system prompt names this path). Do not glob across `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects. Look at which files each candidate actually opened. Grade chain-following from the files it really read plus the shape of the code, never from the candidate's own claims.
-7. **Read every candidate output yourself** end to end. Compare to the judge's verdict. Disagreement means a model is biased or the rubric is ambiguous. Synthesize.
+1. **프레임.** 어떤 변형이 테스트 중이고 어떤 동작이 성공으로 간주되는지 진술. 심사위원만을 위한 루브릭(3-6개의 구체적 기준) 작성. 후보로부터 보류.
+2. **위생처리된 환경 설정.** 변형이 제자리에 있는 후보별 작업 디렉토리. 유기적 작업이 가질 컨텍스트를 심음: 프로젝트 스켈레톤, 후보가 자연스럽게 읽을 스킬들.
+3. **하나의 유기적 프롬프트 저작.** 사용자가 타이핑할 것. 측정되는 것의 누출 없음.
+4. **N개의 병렬 후보 생성**을 **arena** 스킬의 Phase B에 따라 다른 모델들에서. 각각은 자체 위생처리된 디렉토리에서 작업. 각각에게 같은 프롬프트. 하위 에이전트 섹션에 따라 각 하위 에이전트의 추론 수준과 빠름 또는 표준 속도를 작업에 맞게 선택하세요.
+5. **하나의 블라인드 심사위원 생성**을 **arena** 스킬의 Phase C에 따라 다른 모델 패밀리에서. 심사위원은 위생처리된 라벨과 루브릭으로 출력을 보며, 절대 모델 이름으로 보지 않습니다.
+6. **자기 보고가 아니라 대화록으로부터 체인 검증.** 활성 작업공간의 `agent-transcripts/` 디렉토리(시스템 프롬프트가 이 경로를 명명) 아래 각 후보의 로컬 대화록을 읽으세요. `~/.cursor/projects/*/`를 넘어 glob하지 마세요. 그것은 작업공간 경계를 넘고 관련 없는 프로젝트의 개인 채팅을 읽습니다. 각 후보가 실제로 연 파일들을 보세요. 후보 자신의 주장이 아니라, 실제로 읽은 파일과 코드 형태로부터 체인 추종을 등급화.
+7. **모든 후보 출력을 직접** 처음부터 끝까지 읽으세요. 심사위원의 판정과 비교. 불일치는 모델이 편향되었거나 루브릭이 모호함을 의미합니다. 종합.
 
-**Reply:** variant under test, rubric, per-candidate notes, judge's verdict, your synthesis, and a recommendation for whether to promote the variant.
+**답변:** 테스트 중인 변형, 루브릭, 후보별 노트, 심사위원의 판정, 당신의 종합, 변형을 승진시킬지에 대한 추천.

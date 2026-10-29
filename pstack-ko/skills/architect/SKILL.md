@@ -1,79 +1,79 @@
 ---
 name: architect
-description: "Sketch types, signatures, and module structure before code, then stay in the loop while implementation fills in. Use for /architect, 'architect this', 'design this', or non-trivial work where jumping to code would lock in the wrong shape."
+description: "코드를 작성하기 전에 타입, 시그니처, 모듈 구조를 스케치한 다음 구현이 채워지는 동안 루프에 참여하세요. /architect, 'architect this', 'design this'에 사용하거나, 코드로 바로 뛰어드는 것이 잘못된 형태로 고착될 수 있는 비자명한 작업에 사용하세요."
 disable-model-invocation: true
 ---
 
 # Architect
 
-Sketch types, function signatures, class shapes, and module boundaries with `not implemented` bodies and pseudocode. Synthesize across multiple model perspectives, then fill in code against the chosen sketch.
+`not implemented` 본문과 의사 코드로 타입, 함수 시그니처, 클래스 형태, 모듈 경계를 스케치하세요. 여러 모델 관점을 종합한 다음, 선택한 스케치에 대해 코드를 채웁니다.
 
-## Start
+## 시작
 
-Open a todolist with one entry per phase before starting.
+시작하기 전에 각 단계마다 하나의 항목이 있는 투두리스트를 여세요.
 
-1. Ground
-2. Sketch
-3. Agree
-4. Implement
-5. Scrap
+1. 기반 다지기 (Ground)
+2. 스케치 (Sketch)
+3. 합의 (Agree)
+4. 구현 (Implement)
+5. 폐기 (Scrap)
 
-## Phase A: Ground the problem
+## 단계 A: 문제의 기반 다지기
 
-Build a real mental model of every system the new code touches. Run the **how** skill over the relevant subsystems. Naming a file isn't grounding. Produce the architectural explanation `how` prescribes. If the design redefines ownership or layering, also run the **why** skill on the existing shape so the rationale becomes a constraint, not a guess.
+새 코드가 닿는 모든 시스템의 실제 정신 모델을 구축하세요. 관련 하위 시스템에 대해 **how** 스킬을 실행하세요. 파일 이름을 지정하는 것은 기반 다지기가 아닙니다. `how`가 규정하는 아키텍처 설명을 생성하세요. 설계가 소유권이나 계층을 재정의하는 경우, 기존 형태에 대해서도 **why** 스킬을 실행하여 근거가 추측이 아니라 제약 조건이 되도록 하세요.
 
-Skip Phase A only when the work is genuinely greenfield with no surrounding system to integrate.
+작업이 주변 시스템과 통합할 필요가 없는 진정한 그린필드인 경우에만 단계 A를 건너뛰세요.
 
-## Phase B: Sketch
+## 단계 B: 스케치
 
-Run the **arena** skill with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt.
+design-sketch 작업과 단계 A 기반 아티팩트를 사용하여 **arena** 스킬을 실행하세요. 각 러너의 프롬프트로 `references/runner-prompt.md`를 전달하세요.
 
-Take the runners from the `architect runners` line in the `pstack-models.mdc` rule, in place of the `arena runners` line. If the rule or that line is missing, use `claude-opus-5-5-xhigh` and `grok-4.7-xhigh-fast`. Alias and rejected entries follow the runner rules in the **arena** skill's Phase A.
+`pstack-models.mdc` 규칙의 `architect runners` 라인에서 러너를 가져오고, `arena runners` 라인을 대체합니다. 규칙이나 해당 라인이 없으면 `claude-opus-5-5-xhigh`와 `grok-4.7-xhigh-fast`를 사용하세요. 별칭과 거부된 항목은 **arena** 스킬의 단계 A에 있는 러너 규칙을 따릅니다.
 
-Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient. This is the **exhaust-the-design-space** principle skill made concrete. Whole-shape alternatives, not point fixes inside one shape.
+두 번 설계하세요. 첫 번째가 충분해 보이더라도 합성 전에 최소 두 개의 구조적으로 구별되는 후보가 필요합니다. 이것은 **exhaust-the-design-space** 원칙 스킬을 구체화한 것입니다. 하나의 형태 내에서 포인트 수정이 아니라 전체 형태의 대안입니다.
 
-Screen every candidate against [`references/design-red-flags.md`](references/design-red-flags.md) before synthesis. Assume the next contributor is an agent that sees only the files it opened, copies the nearest example, and takes the shortest path that compiles. Prefer the design where a change that looks right from one file is right for the whole repo.
+합성 전에 [`references/design-red-flags.md`](references/design-red-flags.md)에 대해 모든 후보를 스크리닝하세요. 다음 기여자는 열린 파일만 보고, 가장 가까운 예제를 복사하고, 컴파일되는 최단 경로를 취하는 에이전트라고 가정하세요. 한 파일에서 올바르게 보이는 변경 사항이 전체 저장소에 대해 올바른 설계를 선호하세요.
 
-Compare viable candidates on interface depth. Prefer the design that hides more complexity behind a smaller, simpler public surface. A rich interface can keep call chains short by concentrating capability instead of scattering it across layers.
+인터페이스 깊이로 실행 가능한 후보를 비교하세요. 더 작고 단순한 공개 표면 뒤에 더 많은 복잡성을 숨기는 설계를 선호하세요. 풍부한 인터페이스는 기능을 레이어 전체에 흩어놓는 대신 집중시켜 호출 체인을 짧게 유지할 수 있습니다.
 
-Arena returns one synthesized design package. Its synthesis decision fills the rationale's "Synthesis decision" section.
+Arena는 하나의 합성된 설계 패키지를 반환합니다. 합성 결정은 근거의 "Synthesis decision" 섹션을 채웁니다.
 
-## Phase C: Agree (opt-in)
+## 단계 C: 합의 (옵트인)
 
-Default: proceed directly to implementation with the synthesized design. No human checkpoint.
+기본값: 합성된 설계로 바로 구현을 진행합니다. 인간 체크포인트 없음.
 
-Opt in to a checkpoint when the invoker explicitly asks: "/architect with checkpoint," "stop and show me before implementing," or similar. Then surface the synthesized design and pause for sign-off.
+호출자가 명시적으로 요청할 때 체크포인트에 옵트인하세요: "/architect with checkpoint", "구현하기 전에 멈추고 보여주세요" 또는 유사한 표현. 그런 다음 합성된 설계를 표면화하고 승인을 위해 일시 중지합니다.
 
-The synthesis can ship as its own commit either way, as the "scaffold first" mode of the **foundational-thinking** principle skill. Planned and scoped breakage during fill-in is fine, per the **outcome-oriented-execution** principle skill. For adversarial pressure on the design before implementing, run the **interrogate** skill on the synthesized sketch.
+합성은 어느 쪽이든 자체 커밋으로 배송될 수 있으며, **foundational-thinking** 원칙 스킬의 "scaffold first" 모드입니다. 채우기 중 계획되고 범위가 지정된 파손은 **outcome-oriented-execution** 원칙 스킬에 따라 괜찮습니다. 구현 전에 설계에 대한 적대적 압력을 가하려면 합성된 스케치에 대해 **interrogate** 스킬을 실행하세요.
 
-If the human pushes back on the shape (in a checkpoint or after the fact), treat that as Phase A evidence. Re-ground and re-run Phase B before writing more code.
+인간이 형태에 대해 반대하면 (체크포인트 또는 사후에), 이를 단계 A 증거로 취급하세요. 더 많은 코드를 작성하기 전에 재기반화하고 단계 B를 다시 실행하세요.
 
-## Phase D: Implement against the sketch
+## 단계 D: 스케치에 대한 구현
 
-Replace `not implemented` bodies with code, pseudocode with logic. The synthesized sketch is the contract. Deviations from it are signal to surface, not friction to absorb silently. If a function needs a parameter the sketch didn't anticipate, ask whether the sketch was wrong, the requirement was missed, or the implementation is overreaching.
+`not implemented` 본문을 코드로, 의사 코드를 로직으로 교체하세요. 합성된 스케치는 계약입니다. 스케치로부터의 편차는 조용히 흡수할 마찰이 아니라 표면화할 신호입니다. 함수가 스케치가 예상하지 못한 매개변수를 필요로 한다면, 스케치가 틀렸는지, 요구 사항이 누락되었는지, 구현이 과도하게 도달하는지 물어보세요.
 
-## Phase E: Scrap when the architecture is wrong
+## 단계 E: 아키텍처가 틀렸을 때 폐기
 
-If implementation keeps producing friction the sketch can't absorb, throw the sketch out. Don't bolt fixes onto a wrong design, per the **redesign-from-first-principles** and **fix-root-causes** principle skills.
+구현이 스케치가 흡수할 수 없는 마찰을 계속 생성한다면 스케치를 버리세요. **redesign-from-first-principles**와 **fix-root-causes** 원칙 스킬에 따라 잘못된 설계에 수정을 볼트로 고정하지 마세요.
 
-The signal is a *pattern*, not single instances. Tells:
+신호는 단일 인스턴스가 아니라 *패턴*입니다. 징후:
 
-- The same shape of workaround appearing repeatedly across unrelated code.
-- Multiple unrelated edge cases that all need special-case branches.
-- Types that need escape hatches (`any`, casts, optional fields always set in practice) to compile.
-- The "we need a lock" reflex when the sketch said the state wasn't shared.
-- Callers having to know the abstraction's internal rules to use it.
-- Two or more independent Phase D deviations of the same shape across the implementation.
+- 관련 없는 코드 전체에 반복적으로 나타나는 동일한 형태의 해결책.
+- 모두 특수 케이스 분기가 필요한 여러 관련 없는 엣지 케이스.
+- 컴파일하기 위해 탈출구 (`any`, 캐스트, 실제로는 항상 설정되는 선택적 필드)가 필요한 타입.
+- 스케치가 상태가 공유되지 않는다고 말했을 때 "락이 필요하다"는 반사.
+- 호출자가 추상화를 사용하기 위해 추상화의 내부 규칙을 알아야 함.
+- 구현 전체에 걸쳐 동일한 형태의 독립적인 단계 D 편차가 두 개 이상.
 
-Use judgment. A few edge cases don't condemn an architecture. Some problems are legitimately complex. Complexity in the data is not complexity in the design.
+판단을 사용하세요. 몇 가지 엣지 케이스가 아키텍처를 비난하지는 않습니다. 일부 문제는 정당하게 복잡합니다. 데이터의 복잡성은 설계의 복잡성이 아닙니다.
 
-When you scrap:
+폐기할 때:
 
-1. Re-run the **how** skill over what's been built.
-2. Redesign as if the new constraints had been day-one assumptions, per redesign-from-first-principles.
-3. Subtract before adding, per the **subtract-before-you-add** principle skill. The new sketch should be smaller than the old one before it grows.
-4. Return to Phase B and re-run arena.
+1. 빌드된 것에 대해 **how** 스킬을 다시 실행하세요.
+2. redesign-from-first-principles에 따라 새로운 제약 조건이 1일차 가정이었던 것처럼 재설계하세요.
+3. **subtract-before-you-add** 원칙 스킬에 따라 추가하기 전에 빼세요. 새 스케치는 성장하기 전에 이전 스케치보다 작아야 합니다.
+4. 단계 B로 돌아가서 arena를 다시 실행하세요.
 
-## Outputs
+## 출력
 
-The caller's usage is written first and the type sketch derived from it. One file with new types and signatures for small changes. Module map plus type definitions for larger work. The rationale ships alongside, shaped per `references/rationale-template.md`, including the usage sketch and the synthesis decision.
+호출자의 사용법이 먼저 작성되고 타입 스케치가 그로부터 도출됩니다. 작은 변경 사항의 경우 새 타입과 시그니처가 있는 하나의 파일. 더 큰 작업의 경우 모듈 맵과 타입 정의. 근거는 `references/rationale-template.md`에 따라 형성되어 함께 배송되며, 사용 스케치와 합성 결정이 포함됩니다.

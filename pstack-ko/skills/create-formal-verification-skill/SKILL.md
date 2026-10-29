@@ -1,43 +1,43 @@
 ---
 name: create-formal-verification-skill
-description: "Generate a project-local skill that formally verifies the code where a bug costs the most and tests reach the least, in any language, with whichever verification tool fits. Use for /create-formal-verification-skill, \"model-check this race\", \"prove this invariant\", or when concurrency, retries, state machines, parsers, or unsafe code need more than tests."
+description: "버그 비용이 가장 크고 테스트가 가장 적게 도달하는 곳에서 코드를 형식적으로 검증하는 프로젝트 로컬 스킬을 생성하세요. 어떤 언어든, 어떤 검증 도구든 적합한 것으로. /create-formal-verification-skill, \"model-check this race\", \"prove this invariant\", 또는 동시성, 재시도, 상태 머신, 파서, 또는 unsafe 코드가 테스트보다 더 많이 필요할 때 사용하세요."
 disable-model-invocation: true
 ---
 
 # Create a formal verification skill
 
-A test checks the cases that someone thought to write. Formal verification checks every case in a stated scope: every order of steps in a model, every input up to a bound, or every input. This skill finds the part of the repo where that matters most, verifies one property of it, and leaves a project-local skill that lets the next agent check a change against that property. Write that skill for an agent who reads it cold, mid-change, and has never seen your work. The user must be able to trust the result and act on it without learning the verification language.
+테스트는 누군가가 작성하기로 생각한 케이스를 확인합니다. 형식 검증 (Formal verification)은 명시된 범위의 모든 케이스를 확인합니다: 모델의 모든 단계 순서, 경계까지의 모든 입력, 또는 모든 입력. 이 스킬은 저장소에서 그것이 가장 중요한 부분을 찾고, 그것의 한 가지 속성을 검증하고, 다음 에이전트가 해당 속성에 대해 변경 사항을 확인할 수 있는 프로젝트 로컬 스킬을 남깁니다. 그것을 차갑게 읽고, 변경 중이고, 당신의 작업을 본 적이 없는 에이전트를 위해 그 스킬을 작성하세요. 사용자는 검증 언어를 배우지 않고도 결과를 신뢰하고 조치를 취할 수 있어야 합니다.
 
-## Choose the target from the code
+## 코드에서 대상 선택
 
-Answer from the codebase, and ask the user only what you cannot observe. If the user named an area or a bug, start there.
+코드베이스에서 답하고, 관찰할 수 없는 것만 사용자에게 물어보세요. 사용자가 영역이나 버그를 명명했다면 거기서 시작하세요.
 
-A good target is a promise the code makes, where a break harms users and tests rarely reach the case that breaks it. Choose the strongest such target in the repo, not the one that is easiest to verify.
+좋은 대상은 코드가 만드는 약속이며, 중단이 사용자에게 해를 끼치고 테스트가 중단되는 경우에 거의 도달하지 않는 곳입니다. 검증하기 가장 쉬운 것이 아니라 저장소에서 가장 강력한 그러한 대상을 선택하세요.
 
-## Let the question choose the tool
+## 질문이 도구를 선택하게 하세요
 
-Pick the tool that answers the question at the lowest cost: a model checker, a proof assistant, an SMT-backed verifier, or another tool. Whether events can happen in a bad order usually suits a model checker over a small model of the design, and TLA+ is the default for that in any language. Whether the code itself behaves for every input, as with memory safety, overflow, or a data-structure invariant, usually suits a verifier that runs on the code. If no verifier runs on this language, say so, and test the real code with generated inputs, not a hand model of the function. A property that must hold at every size, where a bound is not enough, can need a proof. Prefer a tool that the repo's developers can install and run, and tell the user why you chose it.
+최저 비용으로 질문에 답하는 도구를 선택하세요: 모델 체커, 증명 보조자, SMT 지원 검증기, 또는 다른 도구. 이벤트가 나쁜 순서로 발생할 수 있는지 여부는 일반적으로 설계의 작은 모델에 대한 모델 체커에 적합하며, TLA+는 모든 언어에서 그에 대한 기본값입니다. 코드 자체가 메모리 안전성, 오버플로우 또는 데이터 구조 불변성과 같이 모든 입력에 대해 동작하는지 여부는 일반적으로 코드에서 실행되는 검증기에 적합합니다. 이 언어에서 실행되는 검증기가 없다면 그렇게 말하고, 함수의 손 모델이 아니라 생성된 입력으로 실제 코드를 테스트하세요. 경계가 충분하지 않은 모든 크기에서 유지되어야 하는 속성은 증명이 필요할 수 있습니다. 저장소 개발자가 설치하고 실행할 수 있는 도구를 선호하고, 왜 선택했는지 사용자에게 말하세요.
 
-## What makes it good
+## 무엇이 좋게 만드는가
 
-- **True to the code.** Every part of the model or proof points to code that a reviewer can open. What the verification treats as one indivisible step is one indivisible step in the code. Names come from this repo.
-- **Able to fail.** A check that you have never seen fail proves nothing. Show each property failing on a broken variant of the code it guards, such as a removed check or a reordered step.
-- **Findings stay findings.** When the current code breaks the property, report it with the counterexample in the code's terms. Do not weaken the property or the model until it passes, and do not change product code unless the user asks.
-- **Honest about scope.** Say what is verified, under which bounds and assumptions, and what is left out. A pass covers the model or the bound, not the whole system.
-- **Readable without the tool.** State the property and the harm in one plain sentence each. Tell a counterexample as a short sequence of steps in the code's words.
-- **Cheap to rerun.** One command, a reproducible tool version, and a run short enough that the next agent will use it on every relevant change.
-- **Kept in step with the code.** Record which files and functions each check covers, and the commit at which you last confirmed that the verification describes them. When the covered code changes after that commit, the next agent can see that the verification needs another look.
+- **코드에 충실합니다.** 모델이나 증명의 모든 부분은 리뷰어가 열 수 있는 코드를 가리킵니다. 검증이 하나의 분할 불가능한 단계로 취급하는 것은 코드에서 하나의 분할 불가능한 단계입니다. 이름은 이 저장소에서 나옵니다.
+- **실패할 수 있습니다.** 실패하는 것을 본 적이 없는 검사는 아무것도 증명하지 않습니다. 제거된 검사나 재정렬된 단계와 같이 보호하는 코드의 손상된 변형에서 각 속성이 실패하는 것을 보여주세요.
+- **발견 사항은 발견 사항으로 남습니다.** 현재 코드가 속성을 위반할 때 코드의 용어로 반례와 함께 보고하세요. 통과할 때까지 속성이나 모델을 약화시키지 말고, 사용자가 요청하지 않는 한 제품 코드를 변경하지 마세요.
+- **범위에 대해 정직합니다.** 무엇이 검증되는지, 어떤 경계와 가정 하에, 무엇이 빠져 있는지 말하세요. 통과는 전체 시스템이 아니라 모델 또는 경계를 커버합니다.
+- **도구 없이 읽을 수 있습니다.** 속성과 피해를 각각 하나의 평범한 문장으로 진술하세요. 코드의 단어로 짧은 단계 시퀀스로 반례를 말하세요.
+- **재실행이 저렴합니다.** 하나의 명령, 재현 가능한 도구 버전, 다음 에이전트가 모든 관련 변경에 사용할 만큼 짧은 실행.
+- **코드와 동기화됩니다.** 각 검사가 커버하는 파일과 함수, 그리고 마지막으로 검증이 그것들을 설명한다고 확인한 커밋을 기록하세요. 커버된 코드가 해당 커밋 이후 변경되면 다음 에이전트는 검증이 다시 살펴봐야 함을 볼 수 있습니다.
 
-## Generate the verify skill
+## verify 스킬 생성
 
-Write a project-local skill with frontmatter that names the area and says when to use it. Without frontmatter, the skill never registers. From the skill alone, the next agent must be able to tell whether a change touches the verified code, run the check, tell a real bug from a modeling error, and update the verification when a change is intended. Put the coverage record and the sync commit in the skill, and tell the next agent to move the sync commit forward only after it confirms that the verification describes the code at the new commit. Use this repo's real commands, paths, and nouns, and leave no placeholders.
+영역을 명명하고 언제 사용할지 말하는 프론트매터가 있는 프로젝트 로컬 스킬을 작성하세요. 프론트매터가 없으면 스킬이 등록되지 않습니다. 스킬만으로 다음 에이전트는 변경 사항이 검증된 코드를 터치하는지 여부를 말할 수 있어야 하고, 검사를 실행하고, 모델링 오류와 실제 버그를 구별하고, 변경이 의도된 것일 때 검증을 업데이트할 수 있어야 합니다. 커버리지 레코드와 동기화 커밋을 스킬에 넣고, 다음 에이전트에게 검증이 새 커밋에서 코드를 설명한다고 확인한 후에만 동기화 커밋을 앞으로 이동하라고 말하세요. 이 저장소의 실제 명령, 경로 및 명사를 사용하고, 자리 표시자를 남기지 마세요.
 
-If the check is a TLA+ model, tell the next agent to read every result with the pstack [`/statechart`](../statechart/SKILL.md) skill. It shows each invariant violation the checker finds as its shortest path in plain words. When the check passes, `/statechart` draws a chart of how the system moves between states. Refer to `/statechart` by name. Its commands, options, and file paths change between releases and machines, so copy none of them into the generated skill or its scripts.
+검사가 TLA+ 모델이면 다음 에이전트에게 pstack [`/statechart`](../statechart/SKILL.md) 스킬로 모든 결과를 읽으라고 말하세요. 체커가 찾는 각 불변성 위반을 평범한 단어로 가장 짧은 경로로 보여줍니다. 검사가 통과하면 `/statechart`는 시스템이 상태 간에 어떻게 이동하는지 차트를 그립니다. `/statechart`를 이름으로 참조하세요. 명령, 옵션 및 파일 경로는 릴리스와 머신 간에 변경되므로 생성된 스킬이나 스크립트에 그것들 중 어느 것도 복사하지 마세요.
 
-## Prove it before you hand off
+## 넘기기 전에 증명
 
-Follow the generated skill once, as the next agent would, on a scratch change that breaks the property in the real code. It must catch the break. Then drop the scratch change and confirm that the check is back where it started: passing, or failing only on the findings you will report. A verify skill that was never run is a draft. If the skill misses the break or a step does not run, fix the skill or the verification, not the scratch change.
+생성된 스킬을 다음 에이전트가 하듯이 한 번 따르세요. 실제 코드에서 속성을 위반하는 스크래치 변경에 대해. 중단을 잡아야 합니다. 그런 다음 스크래치 변경을 삭제하고 검사가 시작한 곳으로 돌아왔는지 확인하세요: 통과하거나, 보고할 발견 사항에 대해서만 실패합니다. 실행된 적이 없는 verify 스킬은 초안입니다. 스킬이 중단을 놓치거나 단계가 실행되지 않으면 스크래치 변경이 아니라 스킬이나 검증을 수정하세요.
 
-## Hand off
+## 넘기기
 
-Tell the user what you verified, which tool you used and why, the bounds, what the check found in plain words, how to run it, and what it does not cover. Suggest a second target only if you found a close one. Point the user at `/maintain-formal-verification-skill` for bringing the verification back in line after changes that did not recheck it.
+사용자에게 무엇을 검증했는지, 어떤 도구를 사용했는지 그리고 왜인지, 경계, 검사가 평범한 단어로 무엇을 발견했는지, 어떻게 실행하는지, 무엇을 커버하지 않는지 말하세요. 가까운 것을 찾았을 때만 두 번째 대상을 제안하세요. 검증을 다시 확인하지 않은 변경 후 검증을 다시 정렬하기 위해 `/maintain-formal-verification-skill`을 사용자에게 가리키세요.

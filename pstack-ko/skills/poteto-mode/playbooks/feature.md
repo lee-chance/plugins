@@ -1,21 +1,21 @@
-### Feature
+### 피처
 
-**You own the design. Plan, review, verify.** Delegate implementation. Stay in the lead.
+**설계를 당신이 소유합니다. 계획하고, 검토하고, 검증하세요.** 구현을 위임하세요. 주도적으로 남으세요.
 
-1. `how` over the affected subsystem.
-2. `architect` for parallel design exploration.
-3. Write the throughput checkpoint as four todo items. A dimension that genuinely does not apply (single file, no fan-out) keeps its item with `n/a: <reason>` rather than being dropped:
-   - **Blocking first steps.** Gates run before fan-out.
-   - **Independent workstreams.** Disjoint files, services, or layers parallelize. Shared writes serialize.
-   - **Shared mutable state.** Default to splitting the target (the **separate-before-serializing-shared-state** principle skill). Serialize only for real invariants.
-   - **Smallest safe decomposition.** If one worker is best, name why.
-4. Delegate code-writing to a subagent using your configured feature model (default `grok-4.7-xhigh-fast`) with a specific scope (file paths, named data shape and its organizing structure per **principle-model-the-domain**, a state machine over scattered booleans, a table/registry over branching, a typed model over repeated shape assumptions, chosen before the delegate writes logic, and success criteria). Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section. When the implementation admits multiple valid shapes (error handling, abstraction layer, test structure), delegate via the **arena** skill instead so the runners surface the alternatives and the cross-judge guards the pick. Mandatory: no skip-with-reason escape, and Laziness Protocol does not override it (the gain is review separation, not lines saved). A subagent forbidden to spawn satisfies this by owning the diff directly with the same review separation. No "standing by" reply that waits on a nested agent. Comments per **Comments**. Surgical edits, re-ground against the source for upstream-derived files. Port shared-primitive improvements to all consumers and verify each. Commit liberally.
-5. Verify on the matching surface. "Inconclusive" or wrong-surface is not a pass. Flag it.
-6. Rebase into small, ordered commits. Stack follow-ups.
-   Use the **sequence-verifiable-units** principle skill, building, verifying, and committing each small unit before the next.
-7. If the design is contested, `interrogate` before shipping.
-8. Run **Opening a PR**.
+1. 영향받은 서브시스템에 대해 `how`.
+2. 병렬 설계 탐색을 위해 `architect`.
+3. 처리량 체크포인트를 4개의 todo 항목으로 작성. 진정으로 적용되지 않는 차원(단일 파일, 팬아웃 없음)은 삭제되기보다 `n/a: <이유>`와 함께 항목을 유지:
+   - **차단 첫 단계.** 팬아웃 전에 실행되는 게이트.
+   - **독립적 작업 스트림.** 분리된 파일, 서비스, 또는 레이어는 병렬화. 공유 쓰기는 직렬화.
+   - **공유 가변 상태.** 타깃 분할을 기본값으로(**separate-before-serializing-shared-state** 원칙 스킬). 실제 불변조건에 대해서만 직렬화.
+   - **가장 작은 안전한 분해.** 한 워커가 최선이면, 이유를 명명.
+4. 코드 작성을 구성된 feature 모델(기본 `grok-4.7-xhigh-fast`)을 사용하여 구체적인 범위(파일 경로, **principle-model-the-domain**에 따른 명명된 데이터 형태와 조직화 구조, 흩어진 불리언보다 상태 머신, 분기보다 테이블/레지스트리, 반복된 형태 가정보다 타입 모델, 위임자가 로직을 작성하기 전에 선택, 그리고 성공 기준)로 하위 에이전트에 위임. 하위 에이전트 섹션에 따라 각 하위 에이전트의 추론 수준과 빠름 또는 표준 속도를 작업에 맞게 선택하세요. 구현이 여러 유효한 형태(에러 처리, 추상화 레이어, 테스트 구조)를 허용할 때, **arena** 스킬을 통해 대신 위임하여 러너가 대안을 표면화하고 cross-judge가 선택을 보호하도록. 필수: 이유와 함께 건너뛰기 탈출구 없음, 그리고 게으름 프로토콜이 그것을 재정의하지 않음(이득은 줄 절약이 아니라 리뷰 분리). 생성이 금지된 하위 에이전트는 같은 리뷰 분리로 차이를 직접 소유하여 이것을 만족합니다. "대기 중"이라는 답장은 중첩 에이전트를 기다리지 않습니다. **Comments**에 따른 주석. 외과적 편집, 업스트림 파생 파일에 대해 소스에 대해 재접지. 공유 원시형 개선을 모든 소비자에게 포트하고 각각 검증. 자유롭게 커밋.
+5. 일치하는 표면에서 검증. "불확실함"이나 잘못된 표면은 통과가 아닙니다. 플래그하세요.
+6. 작고, 정렬된 커밋으로 리베이스. 후속 조치를 스택.
+   **sequence-verifiable-units** 원칙 스킬을 사용하여, 다음 전에 각 작은 단위를 빌드하고, 검증하고, 커밋.
+7. 설계가 논쟁의 여지가 있으면, 출시 전 `interrogate`.
+8. **Opening a PR** 실행.
 
-Code-coupled work (one feature, one migration) goes to a single owner with the checkpoint inline. That owner fans out internally after the blocking phase. Parent-level fan-out is for slices that produce independent artifacts (audits, cross-subsystem investigations, competing experiments). Rewrite the checkpoint at phase boundaries. Spawn a fresh owner rather than chaining interrupts.
+코드 결합 작업(하나의 피처, 하나의 마이그레이션)은 체크포인트가 인라인인 단일 소유자에게 갑니다. 그 소유자는 차단 단계 후 내부적으로 팬아웃합니다. 부모 수준 팬아웃은 독립적인 아티팩트(감사, 서브시스템 간 조사, 경쟁 실험)를 생성하는 슬라이스를 위한 것입니다. 단계 경계에서 체크포인트를 재작성. 인터럽트를 체인하기보다 새 소유자를 생성.
 
-**Reply:** what you built, what you chose and why, the throughput checkpoint, open decisions. Tables for design alternatives.
+**답변:** 무엇을 빌드했는지, 무엇을 선택했고 왜인지, 처리량 체크포인트, 열린 결정. 설계 대안을 위한 테이블.

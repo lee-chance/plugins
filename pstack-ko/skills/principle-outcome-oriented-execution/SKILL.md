@@ -1,21 +1,22 @@
 ---
 name: principle-outcome-oriented-execution
-description: "Apply during planned rewrites and migrations with explicit phase boundaries. Converge on the target architecture; don't preserve smooth intermediate states with throwaway compatibility code."
+description: "명시적 단계 경계를 가진 계획된 재작성 및 마이그레이션 중에 적용. 대상 아키텍처로 수렴; 일회용 호환성 코드로 부드러운 중간 상태를 보존하지 마세요."
 disable-model-invocation: true
 ---
 
-# Outcome-Oriented Execution
+# Outcome-Oriented Execution (결과 지향 실행)
 
-Optimize for the intended, verifiable end state rather than preserving smooth intermediate states.
+부드러운 중간 상태를 보존하는 것보다 의도된, 검증 가능한 최종 상태를 최적화하세요.
 
-**Why:** Keeping every intermediate step fully stable often creates temporary compatibility code that becomes long-lived debt. Converge on the target architecture and prove correctness at explicit verification boundaries.
+**이유:** 모든 중간 단계를 완전히 안정적으로 유지하는 것은 종종 오래 지속되는 부채가 되는 임시 호환성 코드를 생성합니다. 대상 아키텍처로 수렴하고 명시적 검증 경계에서 정확성을 증명하세요.
 
-**Core rule:**
-- Prioritize end-state integrity over transitional stability
-- Intermediate breakage is acceptable when it is planned, scoped, and reversible
+**핵심 규칙:**
+- 전환 안정성보다 최종 상태 무결성을 우선시
+- 중간 깨짐은 계획되고, 범위가 정해지고, 되돌릴 수 있을 때 허용됨
 
-**Guardrails:**
-- Use this for planned rewrites and migrations with explicit phase boundaries
-- Declare where temporary breakage is acceptable
-- Keep high-signal checks for actively touched areas while migrating
-- Require full static and runtime verification at plan completion
+**가드레일:**
+- 명시적 단계 경계를 가진 계획된 재작성 및 마이그레이션에 사용
+- 임시 깨짐이 허용되는 곳을 선언
+- 마이그레이션하는 동안 적극적으로 건드린 영역에 대한 높은 신호 체크 유지
+- 계획 완료 시 전체 정적 및 런타임 검증 요구
+
